@@ -1,0 +1,54 @@
+#!/bin/sh
+
+CONTAINER=TCBLocalDynamoDB
+TABLE=TutorChatBot
+
+export AWS_PAGER="" # silence cli using "less" to display output
+
+LOCAL_PORT=8400
+
+docker ps -f "name=$CONTAINER" --format '{{.Names}}' | grep -q $CONTAINER
+if [[ $? == 0 ]]; then
+  docker stop $CONTAINER
+fi
+
+docker run -d --rm -p $LOCAL_PORT:8000 \
+  --name $CONTAINER \
+  amazon/dynamodb-local \
+  -jar DynamoDBLocal.jar -sharedDb
+sleep 3
+
+aws dynamodb list-tables --endpoint-url http://localhost:$LOCAL_PORT | grep -q $TABLE
+if [[ $? != 0 ]]; then
+
+    echo 'add table'
+    aws dynamodb create-table \
+        --endpoint-url http://localhost:$LOCAL_PORT \
+        --table-name $TABLE \
+        --attribute-definitions AttributeName=pk,AttributeType=S AttributeName=sk,AttributeType=S AttributeName=gs1,AttributeType=S \
+        --provisioned-throughput ReadCapacityUnits=5,WriteCapacityUnits=5
+        --key-schema AttributeName=pk,KeyType=HASH AttributeName=sk,KeyType=RANGE \
+        --global-secondary-indexes '
+          [
+              {
+                "IndexName": "gs1",
+                "KeySchema": [
+                  { "AttributeName": "gs1", "KeyType": "HASH" }
+                ],
+                "Projection": {
+                  "ProjectionType": "ALL"
+                },
+                "ProvisionedThroughput": {
+                  "ReadCapacityUnits": 1,
+                  "WriteCapacityUnits": 1
+                }
+              }
+            ]
+        ' \
+
+#    cd ../deploy
+
+    # terraform output -raw front_desk_config_entry | jq '.enclaveApiKey.S = "ec_dev_1bG346BDBGEsG5Dck8H6sAiRBJ7Vt52Vwcno" | .kineticURL.S = "http://localhost:4006/" | .ssoCookieName.S="stubbed_user_uuid"' > /tmp/kws-config.json
+
+#    aws dynamodb put-item --endpoint-url http://localhost:LOCAL_PORT --table-name $TABLE --item file:///tmp/tcb-config.json
+fi
