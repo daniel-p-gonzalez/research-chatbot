@@ -21,6 +21,7 @@ export type PageContextCustom = {
   Page: Page
   pageProps?: PageProps
   urlPathname: string
+  routeParams: Record<string, string>
   exports: {
     documentProps?: {
       title?: string

@@ -1,10 +1,11 @@
 import '@chatscope/chat-ui-kit-styles/dist/default/styles.min.css';
 import { MainContainer, ChatContainer, MessageList, Message as ChatMessage, MessageInput } from '@chatscope/chat-ui-kit-react';
-//import { onMessage } from './Chat.telefunc'
+import { navigate } from 'vite-plugin-ssr/client/router'
 import { ChatMessageReply, WelcomeMessage, MessageJSON } from '../../lib/types'
 import { useSSEUpdates, MsgUpdateCB } from '../../lib/sse-hook'
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { Request } from '../../lib/request'
+import { usePageContext } from '../../renderer/usePageContext';
 
 function makeMessage({ isFirst, isLast, message }: { index: number, isFirst: boolean, isLast: boolean, message: MessageJSON }) {
 
@@ -20,8 +21,10 @@ function makeMessage({ isFirst, isLast, message }: { index: number, isFirst: boo
     )
 }
 
-export const Chat = () => {
-    const [chatId, setId] = useState('')
+export const Page = () => {
+    const ctx = usePageContext()
+
+    const [chatId, setId] = useState(ctx.routeParams.id || '')
     const [log, setLog] = useState<MessageJSON[]>([])
 
     const onMsg: MsgUpdateCB = useCallback(async (update) => {
@@ -32,13 +35,20 @@ export const Chat = () => {
 
     useSSEUpdates(chatId, onMsg)
 
+    useEffect(() => {
+        if (chatId) {
+            Request<ChatMessageReply>(`/api/chat/${chatId}`).then((reply) => {
+                setLog(reply.transcript)
+            })
+        }
+    }, [])
+
     const onSend = async (message: string) => {
         const reply = await Request<ChatMessageReply>('/api/chat/message', { method: 'POST', json: { chatId, message } })
-
-        if (!reply.id) { throw new Error(`no id for message?`) }
-
+        if (!chatId) {
+            navigate(`/chat/${reply.id}`, { overwriteLastHistoryEntry: true })
+        }
         setId(reply.id)
-        console.log(reply)
         setLog(reply.transcript)
     }
     console.log({ log })

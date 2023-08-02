@@ -3,10 +3,6 @@ import type { MessageModel } from './data.js'
 
 export class ChatUpdatesQueue {
 
-    constructor() {
-        console.log('NEW UPDATE Q')
-    }
-
     store: Record<string, SSChatUpdate[]> = {}
 
     push(chatId: string, isPending: boolean, msg: MessageModel) {
