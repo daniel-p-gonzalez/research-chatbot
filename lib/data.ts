@@ -3,12 +3,11 @@ import { Table } from 'dynamodb-onetable'
 import type { Entity } from 'dynamodb-onetable'
 import { DynamoDBClient, DynamoDBClientConfig } from '@aws-sdk/client-dynamodb'
 import { DynamoDBSchema } from './data/schema.js'
+import { IS_PROD } from './env'
 
 let options: DynamoDBClientConfig = {
 
 }
-
-export const IS_PROD = process.env.NODE_ENV === 'production'
 
 if (!IS_PROD) {
     options = {

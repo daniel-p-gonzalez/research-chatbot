@@ -1,0 +1,50 @@
+
+sourced=0
+if [ -n "$ZSH_VERSION" ]; then
+  case $ZSH_EVAL_CONTEXT in *:file) sourced=1;; esac
+elif [ -n "$KSH_VERSION" ]; then
+  [ "$(cd -- "$(dirname -- "$0")" && pwd -P)/$(basename -- "$0")" != "$(cd -- "$(dirname -- "${.sh.file}")" && pwd -P)/$(basename -- "${.sh.file}")" ] && sourced=1
+elif [ -n "$BASH_VERSION" ]; then
+  (return 0 2>/dev/null) && sourced=1
+else # All other shells: examine $0 for known shell binary filenames.
+  # Detects `sh` and `dash`; add additional shell filenames as needed.
+  case ${0##*/} in sh|-sh|dash|-dash) sourced=1;; esac
+fi
+
+if [[ $sourced != 1 ]]; then
+   printf "\033[0;31mYOU SHOULD HAVE SOURCED THIS SCRIPT!\033[0m\n\n"
+   exit 1
+fi
+
+ENV=$1
+
+case $ENV in
+  dev)
+    app=kinetic-web-dev
+    cookie_name=oxa_staging
+    domain=dev.kinetic.openstax.org
+    ;;
+  staging)
+    app=kinetic-web
+    cookie_name=oxa_staging
+    domain=kinetic.sandbox.openstax.org
+  ;;
+  production)
+    app=kinetic-web-prod
+    cookie_name=oxa
+    domain=kinetic.openstax.org
+  ;;
+  *)
+    echo "Usage: $0 <dev|staging|production>" 1>&2;
+    exit 1
+    ;;
+esac
+
+# terraform init -backend-config=${ENV}.conf
+
+export TF_VAR_qualtrics_api_key=$(heroku config:get QUALTRICS_API_KEY --app $app)
+export TF_VAR_base_domain_name=$domain
+export TF_VAR_enclave_api_key=${heroku_enclave_api_key:-"ec_dev_1bG346BDBGEsG5Dck8H6sAiRBJ7Vt52Vwcno"}
+export TF_VAR_environment_name=$ENV
+export TF_VAR_sso_cookie_name=$cookie_name
+export TF_VAR_kinetic_url=${kinetic_url:-"https://$domain/"}

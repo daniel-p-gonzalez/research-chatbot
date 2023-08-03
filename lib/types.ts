@@ -31,3 +31,11 @@ export type ChatMessageReply = {
     id: string,
     transcript: MessageJSON[],
 }
+
+export type  OnProgressCB = (msg: SSChatUpdate) => void
+
+export type OnCompleteCB =  (errorMessage?: string) => void
+
+export type RequestContextOptions = {
+    model?: string
+}

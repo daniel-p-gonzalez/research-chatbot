@@ -17,7 +17,9 @@ export const fetchPrediction = async (id: string) => {
     return await replicate.predictions.get(id)
 }
 
-export const requestInference = async (chat: SavedChatModel, message: MessageModel) => {
+export const requestInference = async (
+    chat: SavedChatModel, message: MessageModel, onProgress: OnProgressCB, onComplete: OnCompleteCB,
+) => {
     const messages = await messagesForChatId(chat.id)
 
     console.log(messages)

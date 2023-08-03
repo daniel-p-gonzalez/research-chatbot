@@ -1,10 +1,11 @@
 import type { Express } from 'express'
 import type { SavedChatModel, SavedMessageModel } from './data'
 import type { ChatUpdatesQueue } from './chat-updates'
+import type { OnProgressCB, OnCompleteCB } from './types'
 
-export const requestInference = async (chat: SavedChatModel, message: SavedMessageModel) => {
+export const requestInference = async (chat: SavedChatModel, message: SavedMessageModel, onProgress: OnProgressCB, onComplete: OnCompleteCB) => {
     const { requestInference } = await import('./service.together.js')
-    return requestInference(chat, message)
+    return requestInference(chat, message, onProgress, onComplete)
 }
 
 

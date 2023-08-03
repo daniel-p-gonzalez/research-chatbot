@@ -12,6 +12,7 @@ import 'dotenv/config'
 import { root } from './root.js'
 import type { ChatMessageReply } from '../lib/types.js'
 import { installWebhookHandler } from '../lib/service.js'
+import { RequestContext } from '../lib/request-context.js'
 const isProduction = process.env.NODE_ENV === 'production'
 
 
@@ -46,21 +47,45 @@ async function startServer() {
     }
     app.post('/api/chat/message', async (req, res) => {
         const { message, chatId } = req.body
-        const { addMessageToChat, chatTranscript } = await import('../lib/conversation.js')
-        const chat = await addMessageToChat(chatId, message)
-        res.json({
+        res.writeHead(200, {
+            "Connection": "keep-alive",
+            "Cache-Control": "no-cache",
+            "Content-Type": "text/event-stream",
+        })
+        const { addMessageToChat, chatTranscript  } = await import('../lib/conversation.js')
+
+        const chat = await addMessageToChat(chatId, message, new RequestContext(
+            (updated) => {
+                res.write('data: ' + JSON.stringify(updated) + '\n\n');
+                res.flush()
+            },
+            (errorMsg?: string) => {
+                if (errorMsg) {
+                    res.write('data: ' + JSON.stringify({ error: errorMsg }) + '\n\n');
+                }
+                res.end()
+            },
+            {}
+        ))
+
+        res.write('data: ' + JSON.stringify({
             id: chat.id,
             transcript: await chatTranscript(chat)
-        })
+        }) + '\n\n');
+
     })
 
     app.get('/api/chat/:id', async (req, res) => {
         const { findChat, chatTranscript } = await import('../lib/conversation.js')
-        const chat = await findChat(req.params.id)
-        res.json({
-            id: chat.id,
-            transcript: await chatTranscript(chat)
-        })
+        try {
+            const chat = await findChat(req.params.id)
+            res.json({
+                id: chat.id,
+                transcript: await chatTranscript(chat)
+            })
+        } catch (e) {
+            res.status(404).send('Not found')
+        }
     })
 
     app.get("/api/stream/:chatId", (req, res) => {

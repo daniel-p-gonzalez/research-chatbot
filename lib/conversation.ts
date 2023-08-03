@@ -1,9 +1,13 @@
 import { requestInference } from './service'
-import { Chat, Message, messagesForChatId } from './data'
+import { Chat, Message, SavedMessageModel, messagesForChatId } from './data'
 import type { SavedChatModel, MessageModel } from './data'
-import type { MessageJSON } from './types'
+import type { MessageJSON,  OnProgressCB, OnCompleteCB } from './types'
+import { RequestContext } from './request-context'
 
-export async function addMessageToChat(chatId: string, content: string)  {
+
+export async function addMessageToChat(
+    chatId: string, content: string, context: RequestContext
+)  {
 
     const chat = await( chatId ? Chat.get({ id: chatId }) : Chat.create({ }) )
 
@@ -13,12 +17,11 @@ export async function addMessageToChat(chatId: string, content: string)  {
 
     const botMsg = await Message.create({ chatId: chat.id, content: '', isBot: true })
 
-
-    requestInference(chat as SavedChatModel, botMsg)
+    requestInference(chat as SavedChatModel, botMsg, context)
     return chat as SavedChatModel
 }
 
-function messageForTranscript(msg: MessageModel): MessageJSON {
+export function messageForTranscript(msg: MessageModel): MessageJSON {
     return {
         id: msg.id || '', content: msg.content, isBot: !!msg.isBot, isPending: (msg.isBot && !msg.content),
     }

@@ -1,10 +1,12 @@
 import '@chatscope/chat-ui-kit-styles/dist/default/styles.min.css';
 import { MainContainer, ChatContainer, MessageList, Message as ChatMessage, MessageInput } from '@chatscope/chat-ui-kit-react';
 import { navigate } from 'vite-plugin-ssr/client/router'
+import { isBrowser } from '../../lib/util'
 import { ChatMessageReply, WelcomeMessage, MessageJSON } from '../../lib/types'
-import { useSSEUpdates, MsgUpdateCB } from '../../lib/sse-hook'
+import { useSSEUpdates, MsgUpdateCB, sendMsgAndListen } from '../../lib/sse-hook'
 import { useState, useCallback, useEffect } from 'react'
 import { Request } from '../../lib/request'
+
 import { usePageContext } from '../../renderer/usePageContext';
 
 function makeMessage({ isFirst, isLast, message }: { index: number, isFirst: boolean, isLast: boolean, message: MessageJSON }) {
@@ -22,49 +24,51 @@ function makeMessage({ isFirst, isLast, message }: { index: number, isFirst: boo
 }
 
 export const Page = () => {
-    const ctx = usePageContext()
+    const defaultChatId = isBrowser() ? window.location?.hash?.slice(1) || '' : ''
 
-    const [chatId, setId] = useState(ctx.routeParams.id || '')
-    const [log, setLog] = useState<MessageJSON[]>([])
-
-    const onMsg: MsgUpdateCB = useCallback(async (update) => {
-        const updatedLog = log.map(msg => msg.id == update.msgId ? { ...msg, content: update.content } : msg)
-        console.log(updatedLog)
-        setLog(updatedLog)
-    }, [log])
-
-    useSSEUpdates(chatId, onMsg)
+    const [chat, setChat] = useState<ChatMessageReply>({id: defaultChatId, transcript: []})
 
     useEffect(() => {
-        if (chatId) {
-            Request<ChatMessageReply>(`/api/chat/${chatId}`).then((reply) => {
-                setLog(reply.transcript)
+        if (chat.id) {
+            Request<ChatMessageReply>(`/api/chat/${chat.id}`).then((reply) => {
+                setChat(reply)
             })
         }
     }, [])
 
-    const onSend = async (message: string) => {
-        const reply = await Request<ChatMessageReply>('/api/chat/message', { method: 'POST', json: { chatId, message } })
-        if (!chatId) {
-            navigate(`/chat/${reply.id}`, { overwriteLastHistoryEntry: true })
-        }
-        setId(reply.id)
-        setLog(reply.transcript)
+    const onSend = (message: string) => {
+        const cc = chat; // create a local copy and use that, otherwise methods below will act on stale state
+        sendMsgAndListen(cc.id, message, {
+            initial: (newChat) => {
+                if (!cc.id) {
+                    history.pushState({}, '', `/chat#${newChat.id}`)
+                }
+                Object.assign(cc, newChat)
+                setChat(newChat)
+            },
+            message: (update) => {
+                const transcript = cc.transcript.map(msg => msg.id == update.msgId ? { ...msg, content: update.content } : msg)
+                setChat({ ...cc, transcript })
+            },
+            error: (errorMsg) => {
+                console.warn(errorMsg)
+            },
+        })
     }
-    console.log({ log })
+
     return (
         <div style={{ position: "relative", height: "500px" }}>
             <MainContainer>
                 <ChatContainer>
                     <MessageList>
                         <ChatMessage model={{
-                            position: log.length ? 'normal' : 'single',
+                            position: chat.transcript.length ? 'normal' : 'single',
                             direction: 'incoming',
                             message: WelcomeMessage,
                             sentTime: "just now",
                             sender: 'TutorBot',
                         }} />
-                        {log.map((msg, i) => makeMessage({ index:i, isFirst: i == 0, isLast: (i == log.length - 1), message: msg }))}
+                        {chat.transcript.map((msg, i) => makeMessage({ index:i, isFirst: i == 0, isLast: (i == chat.transcript.length - 1), message: msg }))}
                     </MessageList>
                     <MessageInput placeholder="Type answer here" autoFocus sendButton={true} onSend={onSend}  />
                 </ChatContainer>
@@ -72,3 +76,5 @@ export const Page = () => {
         </div>
     )
 }
+
+

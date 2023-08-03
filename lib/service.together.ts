@@ -1,17 +1,19 @@
 import { SavedMessageModel, SavedChatModel, Message, messagesForChatId } from './data'
 import fetch from 'node-fetch'
+import { RequestContext } from './request-context'
+import { getParamStoreValue } from './aws'
 // import type { Express } from 'express'
 // import type { ChatUpdatesQueue } from './chat-updates'
 //import { chatUpdates } from './chat-updates'
 import { buildPrompt } from './prompts'
+import { IS_PROD } from './env'
 
-const TOKEN = process.env.TOGETHER_AI_API_TOKEN || ''
-const LINE_REGEX = /data: .*?\n\n/
 type Choices = { choices: { text: string }[] }
-type Reply = { output: Choices }
 
-async function parseChunk(chunk: string, chat: SavedChatModel, message: SavedMessageModel) {
-    const { chatUpdates } = await import('./chat-updates.js')
+async function parseChunk(
+    chunk: string, chat: SavedChatModel, message: SavedMessageModel, context: RequestContext,
+) {
+//    const { chatUpdates } = await import('./chat-updates.js')
 
     const data = chunk.substring(chunk.trimEnd().indexOf(':') + 1).trimStart()
 
@@ -20,29 +22,49 @@ async function parseChunk(chunk: string, chat: SavedChatModel, message: SavedMes
     console.log(`data: ${data}--EOD`)
     if (data.match(/^\s*\[DONE\]/)) {
         message.content = message.content.trimEnd()
-        chatUpdates.push(chat.id, false, message)
+        context.onComplete()
+//        chatUpdates.push(chat.id, false, message)
     } else {
-        const msg = JSON.parse(data) as Choices
-        const content = msg.choices[0].text
-            .replace(/^(\r\n|\r|\n)*<?TutorBot>?:(\r\n|\r|\n)*/i, '')
+        try {
+            const msg = JSON.parse(data) as Choices
+            const content = msg.choices[0].text
+                .replace(/^(\r\n|\r|\n)*<?TutorBot>?:(\r\n|\r|\n)*/i, '')
 
-        message.content += message.content.length ? content : content.trimStart()
+            message.content += message.content.length ? content : content.trimStart()
 
-        Message.update(message)
-        chatUpdates.push(chat.id, true, message)
+            Message.update(message)
+            context.onProgress({
+                msgId: message.id,
+                content: message.content,
+                isPending: true,
+            })
+        }
+        catch (e) {
+            console.error(`error: ${e}, chunk was: ${chunk}`)
+        }
     }
 }
 
-export const requestInference = async (chat: SavedChatModel, message: SavedMessageModel) => {
+export const requestInference = async (
+    chat: SavedChatModel, message: SavedMessageModel, context: RequestContext,
+) => {
 
     const messages = await messagesForChatId(chat.id)
 
     const prompt = buildPrompt(messages)
 console.log(prompt)
+
+
+    let token = process.env.TOGETHER_AI_API_TOKEN
+    if (IS_PROD && !token) {
+        token = await getParamStoreValue('together-ai-api-token')
+    }
+    if (!token) throw new Error("No token for together.ai")
+
     const response = await fetch('https://api.together.xyz/inference', {
         method: 'POST',
         headers: {
-            Authorization: `Bearer ${TOKEN}`,
+            Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({
@@ -58,10 +80,22 @@ console.log(prompt)
         }),
     })
 
-    if (!response.ok)
-        throw new Error(await response.text());
+    if (!response.ok) {
+        const status = await response.text()
+        try {
+            const data = JSON.parse(status)
+            context.onComplete(data.error || data.message || status)
+        }
+        catch {
+            context.onComplete(status)
+        }
+        return
+    }
 
-    if (!response.body) return //throw new Error("no body")
+    if (!response.body) {
+        context.onComplete(`No Body.  status: ${await response.text()}`)
+        return
+    }
 
 
     for await (const incoming of response.body) {
@@ -74,7 +108,7 @@ console.log(prompt)
             if (content.length) {
                 chunk += content
             } else {
-                await parseChunk(chunk, chat, message)
+                await parseChunk(chunk, chat, message, context)
                 chunk = ''
             }
 
