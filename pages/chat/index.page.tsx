@@ -6,6 +6,7 @@ import { ChatMessageReply, WelcomeMessage, MessageJSON } from '../../lib/types'
 import { useSSEUpdates, MsgUpdateCB, sendMsgAndListen } from '../../lib/sse-hook'
 import { useState, useCallback, useEffect } from 'react'
 import { Request } from '../../lib/request'
+import { Link } from '../../renderer/Link'
 
 import { usePageContext } from '../../renderer/usePageContext';
 
@@ -58,6 +59,8 @@ export const Page = () => {
 
     return (
         <div style={{ position: "relative", height: "500px" }}>
+            {defaultChatId && <Link href="/chat">start new chat</Link>}
+            <hr />
             <MainContainer>
                 <ChatContainer>
                     <MessageList>
@@ -70,7 +73,7 @@ export const Page = () => {
                         }} />
                         {chat.transcript.map((msg, i) => makeMessage({ index:i, isFirst: i == 0, isLast: (i == chat.transcript.length - 1), message: msg }))}
                     </MessageList>
-                    <MessageInput placeholder="Type answer here" autoFocus sendButton={true} onSend={onSend}  />
+                    <MessageInput placeholder="Type answer here" attachDisabled attachButton={false} autoFocus sendButton onSend={onSend}  />
                 </ChatContainer>
             </MainContainer>
         </div>

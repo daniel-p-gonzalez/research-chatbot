@@ -69,7 +69,7 @@ console.log(prompt)
         },
         body: JSON.stringify({
             prompt,
-            model: "togethercomputer/llama-2-7b-chat", // 70b-chat", // 13b-chat",
+            model: "togethercomputer/llama-2-70b-chat", // 70b-chat", // 13b-chat",
             max_tokens: 512,
             temperature: 0.7,
             top_p: 0.7,
