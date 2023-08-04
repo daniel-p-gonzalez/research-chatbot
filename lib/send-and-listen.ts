@@ -6,20 +6,26 @@ export type MsgUpdateCB = {
     message: (msg: SSChatUpdate) => void,
     error: (errorMessage: string) => void,
 }
+const MAX_ATTEMPTS = 3
+
+class CompletedError extends Error {  }
 
 export const sendMsgAndListen = async (context: MessageSendContext, cb: MsgUpdateCB) => {
     const controller = new AbortController()
-
+    let attempts = 0
+    let hasReplied = false
     fetchEventSource(`/api/chat/message`, {
         method: 'POST',
-        signal: controller.signal,
+
         headers: {
             "Accept": 'text/event-stream',
             'Content-Type': 'application/json',
             'Cache-Control': 'no-cache',
         },
+        signal: controller.signal,
         body: JSON.stringify(context),
         onmessage(msg) {
+            console.log(msg)
             try {
                 const data = JSON.parse(msg.data)
 
@@ -29,51 +35,35 @@ export const sendMsgAndListen = async (context: MessageSendContext, cb: MsgUpdat
                     cb.error(data.error)
                 } else if (data.msgId) {
                     cb.message(data)
+                    hasReplied = true
                 } else {
                     throw new Error(`Unknown message type: ${msg.data}`)
                 }
             }
             catch (err: any) {
-                console.warn(`Error: ${err.message} parsing payload: ${msg.data}`)
+                throw new Error(`${err.message} parsing payload: ${msg.data}`)
             }
 
+        },
+        onerror(err) {
+            if (attempts > MAX_ATTEMPTS || err instanceof CompletedError) {
+                controller.abort()
+                throw err // do not retry
+            } else {
+                attempts += 1
+            }
+        },
+        onclose() {
+            if (hasReplied) { // we've got at least some content
+                throw new CompletedError() // signal not to retry
+            }
+        }
+    }).catch(err => {
+        if (err instanceof CompletedError) {
+            return
+        } else {
+            console.warn("ERROR", err)
         }
     })
 
-    return
-
-    // const sse = new SSEFetcher(`/api/chat/message`, {
-    //     method: 'POST',
-    //     signal: controller.signal,
-    //     headers: {
-    //         "Accept": 'text/event-stream',
-    //         'Content-Type': 'application/json',
-    //         'Cache-Control': 'no-cache',
-    //     },
-    //     body: JSON.stringify(context),
-    // })
-
-    // while (sse.isReading) {
-    //     const m = await sse.nextMessage();
-    //     console.log(m);
-    //     try {
-    //         const data = JSON.parse(m.data)
-
-    //         if (data.transcript) {
-    //             cb.initial(data)
-    //         } else if (data.error) {
-    //             cb.error(data.error)
-    //         } else if (data.msgId) {
-    //             cb.message(data)
-    //         } else {
-    //             throw new Error(`Unknown message type: ${m.data}`)
-    //         }
-    //     }
-    //     catch (err: any) {
-    //         console.warn(`Error: ${err.message} parsing payload: ${m.data}`)
-    //     }
-    // }
-
-    // // Later, stop events & close the connection.
-    // sse.close();
 }

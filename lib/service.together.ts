@@ -1,52 +1,21 @@
 import { SavedMessageModel, SavedChatModel, Message, messagesForChatId } from './data'
-import fetch from 'node-fetch'
 import { RequestContext } from './request-context'
 import { getParamStoreValue } from './aws'
 import { DEFAULT_MODEL } from './types'
+
+class CompletedError extends Error {  }
 
 // import type { Express } from 'express'
 // import type { ChatUpdatesQueue } from './chat-updates'
 //import { chatUpdates } from './chat-updates'
 import { buildPrompt } from './prompts'
 import { IS_PROD } from './env'
+// using vs @microsoft/fetch-event-source' until https://github.com/Azure/fetch-event-source/pull/28#issuecomment-1421976714
+import { fetchEventSource } from 'fetch-event-source-hperrin'
+
+const MAX_ATTEMPTS = 3
 
 type Choices = { choices: { text: string }[] }
-
-async function parseChunk(
-    chunk: string, message: SavedMessageModel, context: RequestContext,
-) {
-//    const { chatUpdates } = await import('./chat-updates.js')
-
-    const data = chunk.substring(chunk.trimEnd().indexOf(':') + 1).trimStart()
-
-    if (!data.length) return
-
-    console.log(`data: ${data}--EOD`)
-    if (data.match(/^\s*\[DONE\]/)) {
-        message.content = message.content.trimEnd()
-        context.onComplete()
-//        chatUpdates.push(chat.id, false, message)
-    } else {
-        try {
-            const msg = JSON.parse(data) as Choices
-            const content = msg.choices[0].text
-                .replace(/^(\r\n|\r|\n)*<?TutorBot>?:(\r\n|\r|\n)*/i, '')
-                .replace(/(\r\n|\r|\n){2,}/, '\n\n')
-
-            message.content += message.content.length ? content : content.trimStart()
-
-            Message.update(message)
-            context.onProgress({
-                msgId: message.id,
-                content: message.content,
-                isPending: true,
-            })
-        }
-        catch (e) {
-            console.error(`error: ${e}, chunk was: ${chunk}`)
-        }
-    }
-}
 
 const MODELS: Record<string, string> = {
     'llama-2-7b': 'togethercomputer/llama-2-7b-chat',
@@ -59,9 +28,9 @@ const MODELS: Record<string, string> = {
 export const requestInference = async (
     chat: SavedChatModel, message: SavedMessageModel, ctx: RequestContext,
 ) => {
-
+    const controller = new AbortController()
     const messages = await messagesForChatId(chat.id)
-
+    let attempts = 0
     const prompt = buildPrompt(messages)
     console.log(ctx, prompt)
 
@@ -71,12 +40,13 @@ export const requestInference = async (
     }
     if (!token) throw new Error("No token for together.ai")
 
-    const response = await fetch('https://api.together.xyz/inference', {
+    const response = fetchEventSource('https://api.together.xyz/inference', {
         method: 'POST',
         headers: {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json',
         },
+        signal: controller.signal,
         body: JSON.stringify({
             prompt,
             model: MODELS[ctx.model || DEFAULT_MODEL] || MODELS[DEFAULT_MODEL],
@@ -88,7 +58,51 @@ export const requestInference = async (
             repetition_penalty: 1,
             stream_tokens: true,
         }),
+        onmessage(chunk) {
+            console.log(chat.id, chunk.data)
+            if (chunk.data == '[DONE]') {
+                ctx.onComplete()
+                controller.abort()
+                throw new CompletedError()
+            }
+            const msg = JSON.parse(chunk.data) as Choices
+            const content = msg.choices[0].text
+                .replace(/^(\r\n|\r|\n)*<?TutorBot>?:(\r\n|\r|\n)*/i, '')
+                .replace(/(\r\n|\r|\n){2,}/, '\n\n')
+
+            message.content += message.content.length ? content : content.trimStart()
+
+            Message.update(message)
+            ctx.onProgress({
+                msgId: message.id,
+                content: message.content,
+                isPending: true,
+            })
+
+        },
+        onerror(err) {
+            if (attempts > MAX_ATTEMPTS || err instanceof CompletedError) {
+                throw err // do not retry
+            } else {
+                attempts += 1
+            }
+        },
+        onclose() {
+            if (message.content.length) { // we've got at least some content
+                ctx.onComplete()
+            }
+        }
+    }).catch(err => {
+        if (err instanceof CompletedError) {
+            return
+        } else {
+            console.warn("ERROR", err)
+        }
     })
+
+
+    return response
+
 
     if (!response.ok) {
         const status = await response.text()

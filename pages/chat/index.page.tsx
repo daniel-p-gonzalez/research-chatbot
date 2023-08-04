@@ -5,7 +5,7 @@ import {
 import { navigate } from 'vite-plugin-ssr/client/router'
 import { isBrowser } from '#lib/util'
 import { ChatMessageReply, WelcomeMessage, MessageJSON, DEFAULT_MODEL } from '#lib/types'
-import { sendMsgAndListen } from '#lib/sse-hook'
+import { sendMsgAndListen } from '#lib/send-and-listen'
 import { useState, useEffect } from 'react'
 import { Request } from '#lib/request'
 import { Box } from 'boxible'

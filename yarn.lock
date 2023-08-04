@@ -3434,6 +3434,11 @@ fetch-blob@^3.1.2, fetch-blob@^3.1.4:
     node-domexception "^1.0.0"
     web-streams-polyfill "^3.0.3"
 
+fetch-event-source-hperrin@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/fetch-event-source-hperrin/-/fetch-event-source-hperrin-3.0.0.tgz#32f86ffbfcb46e3b08a24fd1ac6b273c91b8a7fc"
+  integrity sha512-pXGnzUFzX/8Nm/Sj0T5jN5szPfMMLfSm7RE1xGn4gvzhAzHeFNUl0/GKpN9oK4rH7LmI/TvcW1xzw/zCabKDuw==
+
 file-entry-cache@^6.0.1:
   version "6.0.1"
   resolved "https://registry.yarnpkg.com/file-entry-cache/-/file-entry-cache-6.0.1.tgz#211b2dd9659cb0394b073e7323ac3c933d522027"
