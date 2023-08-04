@@ -70,9 +70,9 @@ export const Page = () => {
     }
 
     return (
-        <Box style={{ position: "relative", minWidth: '80vw', minHeight: '90vh' }} direction="column" align="center">
+        <Box margin={{ top: '25px' }} style={{ minWidth: '80vw', height: 'calc(100vh - 50px)' }} direction="column" align="center">
 
-            <Box width={ '500px' } direction="column" >
+            <Box width="500px" height="100%" direction="column" >
 
                 <Box justify="between" align="end" margin={{ bottom: '8px' }}>
                     <Button
@@ -93,9 +93,9 @@ export const Page = () => {
                 </Box>
 
 
-                <MainContainer>
+                <MainContainer style={{ height: '100%' }}>
                     <ChatContainer>
-                        <MessageList style={{ minHeight: '80vh' }}>
+                        <MessageList>
                             <ChatMessage model={{
                                 position: chat.transcript.length ? 'normal' : 'single',
                                 direction: 'incoming',
