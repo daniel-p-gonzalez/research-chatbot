@@ -67,8 +67,8 @@ export const requestInference = async (
             }
             const msg = JSON.parse(chunk.data) as Choices
             const content = msg.choices[0].text
-                .replace(/^(\r\n|\r|\n)*<?TutorBot>?:(\r\n|\r|\n)*/i, '')
-                .replace(/(\r\n|\r|\n){2,}/, '\n\n')
+                .replace(/^(\r\n|\r|\n)*<?TutorBot>?:(\r\n|\r|\n)*/gi, '')
+                .replace(/(\r\n|\r|\n){2,}/g, '\n\n')
 
             message.content += message.content.length ? content : content.trimStart()
 
