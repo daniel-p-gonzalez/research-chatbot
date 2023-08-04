@@ -22,14 +22,25 @@ resource "aws_s3_bucket" "chatbot_assets" {
   }
 }
 
-resource "aws_s3_object" "chatbot_assets" {
-  for_each     = fileset("${path.module}/../dist/client", "**/*")
-  bucket       = aws_s3_bucket.chatbot_assets.id
-  content_type = lookup(var.mime_types, regex("\\.[^.]+$", each.value), null)
-  key          = each.value
-  source       = "${path.module}/../dist/client/${each.value}"
-  etag         = filemd5("${path.module}/../dist/client/${each.value}")
+resource "null_resource" "chatbot_assets" {
+  triggers = {
+    always_run = "${timestamp()}"
+  }
+
+  provisioner "local-exec" {
+    command = "s5cmd sync --size-only ${path.module}/../dist/client/ s3://${aws_s3_bucket.chatbot_assets.id}/" # echo ${self.private_ip} >> private_ips.txt"
+  }
 }
+
+# resource "aws_s3_object" "chatbot_assets" {
+#   for_each     = fileset("${path.module}/../dist/client", "**/*")
+#   bucket       = aws_s3_bucket.chatbot_assets.id
+#   content_type = lookup(var.mime_types, regex("\\.[^.]+$", each.value), null)
+#   key          = each.value
+#   source_hash  = module.chat_message_lambda.lambda_function_source_code_hash
+#   source       = "${path.module}/../dist/client/${each.value}"
+#   etag         = filemd5("${path.module}/../dist/client/${each.value}")
+# }
 
 resource "aws_s3_bucket_public_access_block" "chatbot_assets" {
   bucket = aws_s3_bucket.chatbot_assets.id
