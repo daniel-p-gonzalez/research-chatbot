@@ -1,5 +1,4 @@
 import { Link } from '../../renderer/Link'
-import { Chat } from '../chat/index.page'
 
 export { Page }
 

@@ -2,6 +2,8 @@ import { SavedMessageModel, SavedChatModel, Message, messagesForChatId } from '.
 import fetch from 'node-fetch'
 import { RequestContext } from './request-context'
 import { getParamStoreValue } from './aws'
+import { DEFAULT_MODEL } from './types'
+
 // import type { Express } from 'express'
 // import type { ChatUpdatesQueue } from './chat-updates'
 //import { chatUpdates } from './chat-updates'
@@ -11,7 +13,7 @@ import { IS_PROD } from './env'
 type Choices = { choices: { text: string }[] }
 
 async function parseChunk(
-    chunk: string, chat: SavedChatModel, message: SavedMessageModel, context: RequestContext,
+    chunk: string, message: SavedMessageModel, context: RequestContext,
 ) {
 //    const { chatUpdates } = await import('./chat-updates.js')
 
@@ -29,6 +31,7 @@ async function parseChunk(
             const msg = JSON.parse(data) as Choices
             const content = msg.choices[0].text
                 .replace(/^(\r\n|\r|\n)*<?TutorBot>?:(\r\n|\r|\n)*/i, '')
+                .replace(/(\r\n|\r|\n){2,}/, '\n\n')
 
             message.content += message.content.length ? content : content.trimStart()
 
@@ -45,15 +48,22 @@ async function parseChunk(
     }
 }
 
+const MODELS: Record<string, string> = {
+    'llama-2-7b': 'togethercomputer/llama-2-7b-chat',
+    'llama-2-13b': 'togethercomputer/llama-2-13b-chat',
+    'llama-2-70b': 'togethercomputer/llama-2-70b-chat',
+    'vicuna-13b': 'lmsys/vicuna-13b-v1.3',
+}
+
+
 export const requestInference = async (
-    chat: SavedChatModel, message: SavedMessageModel, context: RequestContext,
+    chat: SavedChatModel, message: SavedMessageModel, ctx: RequestContext,
 ) => {
 
     const messages = await messagesForChatId(chat.id)
 
     const prompt = buildPrompt(messages)
-console.log(prompt)
-
+    console.log(ctx, prompt)
 
     let token = process.env.TOGETHER_AI_API_TOKEN
     if (IS_PROD && !token) {
@@ -69,7 +79,7 @@ console.log(prompt)
         },
         body: JSON.stringify({
             prompt,
-            model: "togethercomputer/llama-2-70b-chat", // 70b-chat", // 13b-chat",
+            model: MODELS[ctx.model || DEFAULT_MODEL] || MODELS[DEFAULT_MODEL],
             max_tokens: 512,
             temperature: 0.7,
             top_p: 0.7,
@@ -84,16 +94,16 @@ console.log(prompt)
         const status = await response.text()
         try {
             const data = JSON.parse(status)
-            context.onComplete(data.error || data.message || status)
+            ctx.onComplete(data.error || data.message || status)
         }
         catch {
-            context.onComplete(status)
+            ctx.onComplete(status)
         }
         return
     }
 
     if (!response.body) {
-        context.onComplete(`No Body.  status: ${await response.text()}`)
+        ctx.onComplete(`No Body.  status: ${await response.text()}`)
         return
     }
 
@@ -101,14 +111,14 @@ console.log(prompt)
     for await (const incoming of response.body) {
 
         let chunk = ""
-        //console.log(`chunk: ${String(incoming)}----ENDOCHUHC`)
+        console.log(`${ctx.chatId}: ${String(incoming)}`)
 
         for (const line of String(incoming).split(/(\r\n|\r|\n){2}/g)) {
             const content = line.trim()
             if (content.length) {
                 chunk += content
             } else {
-                await parseChunk(chunk, chat, message, context)
+                await parseChunk(chunk, message, ctx)
                 chunk = ''
             }
 

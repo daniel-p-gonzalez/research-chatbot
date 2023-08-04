@@ -1,24 +1,22 @@
 import { requestInference } from './service'
-import { Chat, Message, SavedMessageModel, messagesForChatId } from './data'
-import type { SavedChatModel, MessageModel } from './data'
-import type { MessageJSON,  OnProgressCB, OnCompleteCB } from './types'
+import { Chat, Message, messagesForChatId } from './data'
+import type { SavedChatModel, MessageModel, SavedMessageModel } from './data'
+import type { MessageJSON } from './types'
 import { RequestContext } from './request-context'
 
 
-export async function addMessageToChat(
-    chatId: string, content: string, context: RequestContext
-)  {
+export async function addMessageToChat(ctx: RequestContext)  {
 
-    const chat = await( chatId ? Chat.get({ id: chatId }) : Chat.create({ }) )
+    const chat = await( ctx.chatId ? Chat.get({ id: ctx.chatId }) : Chat.create({ }) )
 
-    if (!chat?.id) throw new Error(`Conversation for ${chatId} was not found`)
+    if (!chat?.id) throw new Error(`Conversation for ${ctx.chatId} was not found`)
+    const c = chat as SavedChatModel
 
-    await Message.create({ chatId: chat.id, content })
+    await Message.create({ chatId: c.id, content: ctx.message })
+    const botMsg = await Message.create({ chatId: c.id, content: '', isBot: true })  as SavedMessageModel
 
-    const botMsg = await Message.create({ chatId: chat.id, content: '', isBot: true })
-
-    requestInference(chat as SavedChatModel, botMsg, context)
-    return chat as SavedChatModel
+    requestInference(c, botMsg, ctx)
+    return c
 }
 
 export function messageForTranscript(msg: MessageModel): MessageJSON {

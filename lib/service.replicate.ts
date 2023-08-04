@@ -1,7 +1,8 @@
 import Replicate from "replicate";
-import { MessageModel, SavedChatModel, Message, Chat, messagesForChatId } from './data'
+import { SavedMessageModel, SavedChatModel, Message, Chat, messagesForChatId } from './data'
 import fetch from 'node-fetch'
 import type { Express } from 'express'
+import { RequestContext } from './request-context'
 import type { ChatUpdatesQueue } from './chat-updates'
 
 import { buildPrompt } from './prompts'
@@ -18,7 +19,7 @@ export const fetchPrediction = async (id: string) => {
 }
 
 export const requestInference = async (
-    chat: SavedChatModel, message: MessageModel, onProgress: OnProgressCB, onComplete: OnCompleteCB,
+    chat: SavedChatModel, message: SavedMessageModel, _ctx: RequestContext,
 ) => {
     const messages = await messagesForChatId(chat.id)
 

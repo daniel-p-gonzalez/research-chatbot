@@ -7,13 +7,9 @@ const config: UserConfig = {
         react(),
         ssr({ prerender: true }),
     ],
-    build: {
-        rollupOptions: {
-            output: {
-                // assetFileNames: 'assets/asset-[name]-[hash].[ext]',
-                // chunkFileNames: 'assets/chunk-[name]-[hash].js',
-                // entryFileNames: 'assets/entry-[name]-[hash].js',
-            },
+    resolve: {
+        alias: {
+            '#lib': '/lib',
         }
     }
 }

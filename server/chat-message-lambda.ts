@@ -2,6 +2,7 @@ import { APIGatewayProxyEventV2 } from 'aws-lambda'
 import type {Writable}  from 'node:stream'
 import { addMessageToChat, chatTranscript } from '../lib/conversation.js'
 import { RequestContext } from '../lib/request-context.js'
+import type { MessageSendContext } from '#lib/types'
 const { awslambda } = (global as any)
 
 export const handler = awslambda.streamifyResponse(myHandler)
@@ -11,7 +12,7 @@ async function myHandler(
   responseStream: Writable
 ): Promise<void> {
   console.log('Handler got event:', event)
-    const { chatId, message } = JSON.parse(event.body || '') as { chatId: string, message: string }
+    const ctx = JSON.parse(event.body || '') as MessageSendContext
     const metadata = {
         statusCode: 200,
         headers: {
@@ -26,13 +27,13 @@ async function myHandler(
 
     responseStream = awslambda.HttpResponseStream.from(responseStream, metadata);
 
-    const chat = await addMessageToChat(chatId, message, new RequestContext(
+    const chat = await addMessageToChat(new RequestContext(
         (updated) => stream(updated),
         (errorMsg?: string) => {
             if (errorMsg) stream ({ error: errorMsg })
             responseStream.end()
         },
-        {}
+        ctx
     ))
 
     stream({

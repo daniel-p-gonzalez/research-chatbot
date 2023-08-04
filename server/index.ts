@@ -7,10 +7,9 @@
 import express from 'express'
 import compression from 'compression'
 import { renderPage } from 'vite-plugin-ssr/server'
-import { telefunc } from 'telefunc'
 import 'dotenv/config'
 import { root } from './root.js'
-import type { ChatMessageReply } from '../lib/types.js'
+import type { MessageSendContext } from '#lib/types'
 import { installWebhookHandler } from '../lib/service.js'
 import { RequestContext } from '../lib/request-context.js'
 const isProduction = process.env.NODE_ENV === 'production'
@@ -45,16 +44,18 @@ async function startServer() {
         ).middlewares
         app.use(viteDevMiddleware)
     }
+
     app.post('/api/chat/message', async (req, res) => {
-        const { message, chatId } = req.body
+        const ctx = req.body as MessageSendContext
         res.writeHead(200, {
             "Connection": "keep-alive",
             "Cache-Control": "no-cache",
             "Content-Type": "text/event-stream",
         })
+
         const { addMessageToChat, chatTranscript  } = await import('../lib/conversation.js')
 
-        const chat = await addMessageToChat(chatId, message, new RequestContext(
+        const chat = await addMessageToChat(new RequestContext(
             (updated) => {
                 res.write('data: ' + JSON.stringify(updated) + '\n\n');
                 res.flush()
@@ -65,20 +66,20 @@ async function startServer() {
                 }
                 res.end()
             },
-            {}
+            ctx,
         ))
 
         res.write('data: ' + JSON.stringify({
             id: chat.id,
             transcript: await chatTranscript(chat)
         }) + '\n\n');
-
     })
 
-    app.get('/api/chat/:id', async (req, res) => {
+    app.post('/api/chat/fetch-messages', async (req, res) => {
+        const { chatId } = req.body
         const { findChat, chatTranscript } = await import('../lib/conversation.js')
         try {
-            const chat = await findChat(req.params.id)
+            const chat = await findChat(chatId)
             res.json({
                 id: chat.id,
                 transcript: await chatTranscript(chat)
@@ -88,30 +89,30 @@ async function startServer() {
         }
     })
 
-    app.get("/api/stream/:chatId", (req, res) => {
-        const { chatId } = req.params
-        res.writeHead(200, {
-            "Connection": "keep-alive",
-            "Cache-Control": "no-cache",
-            "Content-Type": "text/event-stream",
-        })
+    // app.get("/api/stream/:chatId", (req, res) => {
+    //     const { chatId } = req.params
+    //     res.writeHead(200, {
+    //         "Connection": "keep-alive",
+    //         "Cache-Control": "no-cache",
+    //         "Content-Type": "text/event-stream",
+    //     })
 
-        const interval = setInterval(() => {
-            const updates = chatUpdates.updates(chatId)
-            if (updates.length) {
-                for (const update of updates) {
-                    res.write('data: ' + JSON.stringify(update) + '\n\n');
-                }
-                res.flush()
-                chatUpdates.clearUpdates(chatId) // n.b. this will clear for ALL clients, but I think that's ok since chat's are one per user
-            }
-        }, 1000)
+    //     const interval = setInterval(() => {
+    //         const updates = chatUpdates.updates(chatId)
+    //         if (updates.length) {
+    //             for (const update of updates) {
+    //                 res.write('data: ' + JSON.stringify(update) + '\n\n');
+    //             }
+    //             res.flush()
+    //             chatUpdates.clearUpdates(chatId) // n.b. this will clear for ALL clients, but I think that's ok since chat's are one per user
+    //         }
+    //     }, 1000)
 
-        res.on("close", () => {
-            clearInterval(interval);
-            res.end();
-        })
-    })
+    //     res.on("close", () => {
+    //         clearInterval(interval);
+    //         res.end();
+    //     })
+    // })
 
     installWebhookHandler(app, chatUpdates)
 

@@ -1,17 +1,20 @@
-import type { OnProgressCB, OnCompleteCB, RequestContextOptions } from './types'
+import type { OnProgressCB, OnCompleteCB, MessageSendContext } from './types'
 
 
-export class RequestContext {
+export class RequestContext implements MessageSendContext {
 
     onProgress: OnProgressCB
-
     onComplete: OnCompleteCB
-    options: RequestContextOptions
 
-    constructor(onProgress: OnProgressCB, onComplete: OnCompleteCB, options: RequestContextOptions) {
+    readonly chatId!: string
+    readonly message!: string
+    readonly model?: string
+
+    constructor(onProgress: OnProgressCB, onComplete: OnCompleteCB, ctx: MessageSendContext) {
         this.onProgress = onProgress
         this.onComplete = onComplete
-        this.options = options
+
+        Object.assign(this, ctx)
     }
 
 }

@@ -67,6 +67,7 @@ resource "aws_s3_bucket_website_configuration" "chatbot_assets" {
   }
 }
 
+
 // Cloudfront Distribution
 resource "aws_cloudfront_distribution" "chatbot" {
   default_root_object = "index.html"
@@ -83,7 +84,22 @@ resource "aws_cloudfront_distribution" "chatbot" {
       https_port               = 443
       origin_keepalive_timeout = 5
       origin_protocol_policy   = "http-only"
-      origin_read_timeout      = 30
+      origin_read_timeout      = 10
+      origin_ssl_protocols = [
+        "TLSv1.2",
+      ]
+    }
+  }
+
+  origin {
+    domain_name = replace(module.fetch_chat_messages_lambda.lambda_function_url, "/^https?://([^/]*).*/", "$1")
+    origin_id   = module.fetch_chat_messages_lambda.lambda_function_url_id
+    custom_origin_config {
+      http_port                = 80
+      https_port               = 443
+      origin_keepalive_timeout = 5
+      origin_protocol_policy   = "https-only"
+      origin_read_timeout      = 60
       origin_ssl_protocols = [
         "TLSv1.2",
       ]
@@ -116,7 +132,7 @@ resource "aws_cloudfront_distribution" "chatbot" {
   ]
 
   default_cache_behavior {
-    allowed_methods = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
+    allowed_methods = ["GET", "HEAD"]
     cached_methods  = ["GET", "HEAD"]
 
     target_origin_id = local.assets_s3_origin_id
@@ -128,11 +144,10 @@ resource "aws_cloudfront_distribution" "chatbot" {
   }
 
   ordered_cache_behavior {
-    path_pattern     = "/api/chat/message"
-    allowed_methods  = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
+    path_pattern     = "/api/chat/fetch-messages"
+    allowed_methods  = ["HEAD", "DELETE", "POST", "GET", "OPTIONS", "PUT", "PATCH"]
     cached_methods   = ["GET", "HEAD"]
-    target_origin_id = module.chat_message_lambda.lambda_function_url_id
-
+    target_origin_id = module.fetch_chat_messages_lambda.lambda_function_url_id
 
     compress               = true
     default_ttl            = 0
@@ -155,26 +170,30 @@ resource "aws_cloudfront_distribution" "chatbot" {
   }
 
   ordered_cache_behavior {
-    path_pattern     = "/editor/*"
-    allowed_methods  = ["GET", "HEAD", "OPTIONS"]
-    cached_methods   = ["GET", "HEAD", "OPTIONS"]
-    target_origin_id = local.assets_s3_origin_id
-    # cache_policy_id          = "4135ea2d-6df8-44a3-9df3-4b5a84be39ad" # AWS caching disabled policy
-    # origin_request_policy_id = "33f36d7e-f396-46d9-90e0-52428a34d9dc" # forward all
-    forwarded_values {
-      query_string = true
-      headers      = ["Origin"]
+    path_pattern     = "/api/chat/message"
+    allowed_methods  = ["HEAD", "DELETE", "POST", "GET", "OPTIONS", "PUT", "PATCH"]
+    cached_methods   = ["GET", "HEAD"]
+    target_origin_id = module.chat_message_lambda.lambda_function_url_id
 
-      cookies {
-        forward = "all"
-      }
-    }
 
-    min_ttl                = 0
+    compress               = true
     default_ttl            = 0
     max_ttl                = 0
-    compress               = true
+    min_ttl                = 0
     viewer_protocol_policy = "redirect-to-https"
+
+    forwarded_values {
+      headers = [
+        "Origin",
+      ]
+      query_string            = false
+      query_string_cache_keys = []
+
+      cookies {
+        forward           = "all"
+        whitelisted_names = []
+      }
+    }
   }
 
   viewer_certificate {

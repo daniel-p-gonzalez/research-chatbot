@@ -49,7 +49,7 @@ export type MessageModel = Entity<typeof DynamoDBSchema.models.Message>
 export type SavedMessageModel = MessageModel & { id: string }
 export const Message = DataTable.getModel('Message')
 
-const createdAtCompare = (a: MessageModel, b: MessageModel) => ((a.created == b.created) ? 0 : ((a.created > b.created)? 1: -1));
+const createdAtCompare = (a: MessageModel, b: MessageModel) => ((a.created == b.created) ? 0 : ((a.created! > b.created!)? 1: -1));
 export async function messagesForChatId(chatId: string) {
     return (await Message.find({ chatId }, { index: 'gs1' })).sort(createdAtCompare)
 }

@@ -30,12 +30,24 @@ export type SSChatUpdate = {
 export type ChatMessageReply = {
     id: string,
     transcript: MessageJSON[],
+    error?: string
 }
 
 export type  OnProgressCB = (msg: SSChatUpdate) => void
 
 export type OnCompleteCB =  (errorMessage?: string) => void
 
-export type RequestContextOptions = {
+
+export type MessageSendContext = {
+    chatId:string
+    message: string
     model?: string
 }
+
+// export type RequestContextOptions = {
+//     chatId: string
+//     message: string
+//     model?: string
+// }
+
+export const DEFAULT_MODEL = 'llama-2-70b'

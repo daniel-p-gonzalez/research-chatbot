@@ -1,5 +1,5 @@
-import { useEffect } from 'react'
-import type { SSChatUpdate, ChatMessageReply } from './types'
+import type { SSChatUpdate, ChatMessageReply, MessageSendContext } from './types'
+import { fetchEventSource } from '@microsoft/fetch-event-source'
 
 export type MsgUpdateCB = {
     initial: (msg: ChatMessageReply) => void,
@@ -7,106 +7,73 @@ export type MsgUpdateCB = {
     error: (errorMessage: string) => void,
 }
 
-export const sendMsgAndListen = (chatId:string, message: string, cb: MsgUpdateCB) => {
+export const sendMsgAndListen = async (context: MessageSendContext, cb: MsgUpdateCB) => {
     const controller = new AbortController()
 
-    fetch(`/api/chat/message`, {
+    fetchEventSource(`/api/chat/message`, {
         method: 'POST',
         signal: controller.signal,
         headers: {
-            "Accept": "text/event-stream",
+            "Accept": 'text/event-stream',
             'Content-Type': 'application/json',
             'Cache-Control': 'no-cache',
         },
-        body: JSON.stringify({
-            chatId , message,
-        }),
-    }).then(async (response) => {
-
-        if (!response.ok || !response.body) {
-            throw Error(response.statusText);
-        }
-
-        for (const reader = response.body.getReader(); ;) {
-            const { value, done } = await reader.read();
-
-            if (done) {
-                break;
-            }
-
-            const chunk = new TextDecoder().decode(value);
-
-            const subChunks = chunk.split(/(?<=})\n\ndata: (?={)/);
-
-            for (const subChunk of subChunks) {
-                const payload = subChunk.replace(/^data: /, "")
-                const data = JSON.parse(payload)
+        body: JSON.stringify(context),
+        onmessage(msg) {
+            try {
+                const data = JSON.parse(msg.data)
 
                 if (data.transcript) {
                     cb.initial(data)
                 } else if (data.error) {
                     cb.error(data.error)
-                } else if (data.msgId){
+                } else if (data.msgId) {
                     cb.message(data)
                 } else {
-                    throw new Error(`Unknown message type: ${payload}`)
+                    throw new Error(`Unknown message type: ${msg.data}`)
                 }
             }
+            catch (err: any) {
+                console.warn(`Error: ${err.message} parsing payload: ${msg.data}`)
+            }
+
         }
-    });
+    })
 
-}
+    return
 
-export const useSSEUpdates = (chatId:string, cb: MsgUpdateCB) => {
+    // const sse = new SSEFetcher(`/api/chat/message`, {
+    //     method: 'POST',
+    //     signal: controller.signal,
+    //     headers: {
+    //         "Accept": 'text/event-stream',
+    //         'Content-Type': 'application/json',
+    //         'Cache-Control': 'no-cache',
+    //     },
+    //     body: JSON.stringify(context),
+    // })
 
-    useEffect(() => {
-        console.log({ chatId })
+    // while (sse.isReading) {
+    //     const m = await sse.nextMessage();
+    //     console.log(m);
+    //     try {
+    //         const data = JSON.parse(m.data)
 
-        if (!chatId) return
+    //         if (data.transcript) {
+    //             cb.initial(data)
+    //         } else if (data.error) {
+    //             cb.error(data.error)
+    //         } else if (data.msgId) {
+    //             cb.message(data)
+    //         } else {
+    //             throw new Error(`Unknown message type: ${m.data}`)
+    //         }
+    //     }
+    //     catch (err: any) {
+    //         console.warn(`Error: ${err.message} parsing payload: ${m.data}`)
+    //     }
+    // }
 
-        const evtSource = new EventSource(`/api/stream/${chatId}`);
-        evtSource.onmessage = (e) => {
-            cb(JSON.parse(e.data))
-        };
-        evtSource.onopen = (e) => {
-            console.log(e)
-        };
-        evtSource.onerror = (e) => {
-            console.log(e)
-        };
-
-        // fetch(`/api/stream/${chatId}`, {
-        //     signal: controller.signal,
-        //     headers: {
-        //         "Accept": "text/event-stream",
-        //     },
-        // }).then(async (response) => {
-
-        //     if (!response.ok || !response.body) {
-        //         throw Error(response.statusText);
-        //     }
-
-        //     for (const reader = response.body.getReader(); ;) {
-        //         const { value, done } = await reader.read();
-
-        //         if (done) {
-        //             break;
-        //         }
-
-        //         const chunk = new TextDecoder().decode(value);
-        //         console.log(chunk)
-        //         //const subChunks = chunk.split(/(?<=})\n\ndata: (?={)/);
-
-        //         // for (const subChunk of subChunks) {
-        //         //     const payload = subChunk.replace(/^data: /, "");
-        //         //     document.body.innerText = JSON.parse(payload).chunk;
-        //         // }
-        //     }
-        // });
-
-        return () => {
-            evtSource.close()
-            // controller.abort()
-        }
-    }, [chatId, cb])
+    // // Later, stop events & close the connection.
+    // sse.close();
 }
