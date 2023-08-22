@@ -14,13 +14,18 @@ const Wrapper = styled.div({
     position: 'relative',
 })
 
-export const Chat: React.FC = () => {
+type ChatProps = {
+    topic: string
+    subject: string
+}
+
+export const Chat: React.FC<ChatProps> = (chatProps) => {
     const { setEnabled, setDisabled, isEnabled } = useToggle(false)
 
     return (
         <Wrapper>
             <LaunchIcon onClick={setEnabled} isOpen={isEnabled} />
-            <ChatWindow onClose={setDisabled} isOpen={isEnabled} />
+            <ChatWindow onClose={setDisabled} isOpen={isEnabled} {...chatProps} />
         </Wrapper>
     )
 }

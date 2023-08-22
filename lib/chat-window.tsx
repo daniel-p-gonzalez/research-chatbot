@@ -38,7 +38,14 @@ const Wrapper = styled(Box)({
     bottom: -30,
 })
 
-export const ChatWindow: React.FC<{ onClose: () => void , isOpen: boolean}> = ({ onClose, isOpen }) => {
+type ChatWindowProps = {
+    subject: string
+    topic: string
+    onClose: () => void
+    isOpen: boolean
+}
+
+export const ChatWindow: React.FC<ChatWindowProps> = ({ onClose, isOpen, topic, subject }) => {
 
     const defaultChatId = isBrowser() ? window.location?.hash?.slice(1) || '' : ''
     const [model, setModel] = useState<string>(DEFAULT_MODEL)
@@ -68,9 +75,8 @@ export const ChatWindow: React.FC<{ onClose: () => void , isOpen: boolean}> = ({
         const cc = { ...chat, transcript: [...chat.transcript] }; // create a local copy and use that, otherwise methods below will act on stale state
         cc.transcript.push({ id: 'temp', content: message, isBot: false }, { id: 'temp-reply', content: '', isBot: true })
         setChat(cc)
-        sendMsgAndListen({ chatId: cc.id, message, model }, {
+        sendMsgAndListen({ chatId: cc.id, message, model, topic, subject }, {
             initial: (newChat) => {
-
                 if (!cc.id) {
                     history.pushState({}, '', `/chat#${newChat.id}`)
                 }
@@ -107,7 +113,7 @@ export const ChatWindow: React.FC<{ onClose: () => void , isOpen: boolean}> = ({
                         <ChatMessage model={{
                             position: 'single',
                             direction: 'incoming',
-                            message: WelcomeMessage,
+                            message: `Hello, I’m TutorBot.  Would you like to know more about ${topic}? I can also answer any other questions about ${subject}`,
                             sentTime: "just now",
                             sender: 'TutorBot',
                         }} />

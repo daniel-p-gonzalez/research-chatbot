@@ -19,7 +19,7 @@ export const fetchPrediction = async (id: string) => {
 }
 
 export const requestInference = async (
-    chat: SavedChatModel, message: SavedMessageModel, _ctx: RequestContext,
+    chat: SavedChatModel, message: SavedMessageModel, ctx: RequestContext,
 ) => {
     const messages = await messagesForChatId(chat.id)
 
@@ -29,7 +29,7 @@ export const requestInference = async (
     // "2c1608e18606fad2812020dc541930f2d0495ce32eee50074220b87300bc16e1"
     //replicate/llama-2-70b-chat:2c1608e18606fad2812020dc541930f2d0495ce32eee50074220b87300bc16e1"
 
-    const prompt = buildPrompt(messages)
+    const prompt = buildPrompt(ctx, messages)
 
     console.log(prompt)
 

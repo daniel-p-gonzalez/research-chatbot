@@ -41,6 +41,8 @@ export type OnCompleteCB =  (errorMessage?: string) => void
 export type MessageSendContext = {
     chatId:string
     message: string
+    topic: string
+    subject: string
     model?: string
 }
 

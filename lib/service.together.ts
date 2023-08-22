@@ -34,7 +34,7 @@ export const requestInference = async (
 
     const { buildPrompt } = await import('./prompts')
 
-    const prompt = buildPrompt(messages)
+    const prompt = buildPrompt(ctx, messages)
     console.log(ctx, prompt)
 
     let token = process.env.TOGETHER_AI_API_TOKEN
