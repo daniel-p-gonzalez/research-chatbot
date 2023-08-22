@@ -5,7 +5,7 @@ import { useToggle } from '@nathanstitt/sundry/base'
 import { LaunchIcon } from '#lib/launch-icon';
 
 const Wrapper = styled.div({
-    float: 'left',
+    float: 'right',
     overflow: 'visible',
     width: 200,
     height: 150,

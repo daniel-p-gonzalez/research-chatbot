@@ -34,8 +34,8 @@ const Wrapper = styled(Box)({
     border: '1px solid',
     background: 'white',
     position: 'absolute',
-    left: -10,
-    bottom: -30,
+    right: 10,
+    bottom: -50,
 })
 
 type ChatWindowProps = {
