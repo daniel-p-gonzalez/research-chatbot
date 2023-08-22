@@ -1,122 +1,27 @@
-import '@chatscope/chat-ui-kit-styles/dist/default/styles.min.css';
-import {
-    MainContainer, ChatContainer, MessageList, Message as ChatMessage, MessageInput,
-} from '@chatscope/chat-ui-kit-react';
-import { navigate } from 'vite-plugin-ssr/client/router'
-import { isBrowser } from '#lib/util'
-import { ChatMessageReply, WelcomeMessage, MessageJSON, DEFAULT_MODEL } from '#lib/types'
-import { sendMsgAndListen } from '#lib/send-and-listen'
-import { useState, useEffect } from 'react'
-import { Request } from '#lib/request'
-import { Box } from 'boxible'
-import { Select, Button } from '@mantine/core';
-import { PlaylistAdd } from 'tabler-icons-react'
+import { Container } from '@mantine/core';
+import { Chat } from '#lib/chat'
 
-function makeMessage({ isFirst, isLast, message }: { index: number, isFirst: boolean, isLast: boolean, message: MessageJSON }) {
-
-    return (
-        <ChatMessage key={message.id} model={{
-            position: isFirst ? 'single' : isLast ? 'last' : 'normal',
-            direction: message.isBot ? 'incoming' : 'outgoing',
-            message: message.content || '…',
-            sentTime: "just now",
-            sender: message.isBot ? 'TutorBot' : 'You',
-        }} />
-
-    )
-}
 
 export const Page = () => {
-    const defaultChatId = isBrowser() ? window.location?.hash?.slice(1) || '' : ''
-    const [model, setModel] = useState<string>(DEFAULT_MODEL)
-
-    const [chat, setChat] = useState<ChatMessageReply>({id: defaultChatId, transcript: []})
-
-    useEffect(() => {
-        if (chat.id) {
-            Request<ChatMessageReply>(
-                '/api/chat/fetch-messages', {
-                    method: 'POST',
-                    json: { chatId: chat.id }
-                }
-            ).then((reply) => {
-                if (reply.error) {
-                    console.warn(reply.error)
-                } else {
-                    setChat(reply)
-                }
-            })
-        }
-    }, [])
-
-    const onSend = (_:string, message: string) => {
-        const cc = chat; // create a local copy and use that, otherwise methods below will act on stale state
-        sendMsgAndListen({ chatId: cc.id, message, model }, {
-            initial: (newChat) => {
-                if (!cc.id) {
-                    history.pushState({}, '', `/chat#${newChat.id}`)
-                }
-                Object.assign(cc, newChat)
-                setChat(newChat)
-            },
-            message: (update) => {
-                const transcript = cc.transcript.map(msg => msg.id == update.msgId ? { ...msg, content: update.content } : msg)
-                setChat({ ...cc, transcript })
-            },
-            error: (errorMsg) => {
-                console.warn(errorMsg)
-            },
-        })
-    }
 
     return (
-        <Box margin={{ top: '25px' }} style={{ minWidth: '80vw', height: 'calc(100vh - 50px)' }} direction="column" align="center">
+        <Container>
 
-            <Box width="500px" height="100%" direction="column" >
+            <section>
+                <h4>2.2 The PPF and the Law of Increasing Opportunity Cost</h4>
+                <p>
+                    The budget constraints that we presented earlier in this chapter, showing individual choices about what quantities of goods to consume, were all straight lines. The reason for these straight lines was that the relative prices of the two goods in the consumption budget constraint determined the slope of the budget constraint. However, we drew the production possibilities frontier for healthcare and education as a curved line. Why does the PPF have a different shape?
 
-                <Box justify="between" align="end" margin={{ bottom: '8px' }}>
-                    <Button
-                        onClick={() => navigate('/chat')}
-                        rightIcon={<PlaylistAdd />} size="md"
-                    >
-                        Start New Chat
-                    </Button>
-                    <Select
-                        mt="md"
-                        value={model}
-                        onChange={(m) => m && setModel(m)}
-                        data={['llama-2-7b', 'llama-2-13b', 'llama-2-70b']}
-                        placeholder="Pick one"
-                        label="Model to use"
-
-                    />
-                </Box>
-
-
-                <MainContainer style={{ height: '100%' }}>
-                    <ChatContainer>
-                        <MessageList>
-                            <ChatMessage model={{
-                                position: chat.transcript.length ? 'normal' : 'single',
-                                direction: 'incoming',
-                                message: WelcomeMessage,
-                                sentTime: "just now",
-                                sender: 'TutorBot',
-                            }} />
-                            {chat.transcript.map((msg, i) => makeMessage({ index: i, isFirst: i == 0, isLast: (i == chat.transcript.length - 1), message: msg }))}
-                        </MessageList>
-
-                        <MessageInput
-                            placeholder="Type answer here"
-                            attachButton={false}
-                            autoFocus
-                            sendButton
-                            onSend={onSend}
-                        />
-                    </ChatContainer>
-                </MainContainer>
-            </Box>
-        </Box>
+                </p>
+                <p>
+                    To understand why the PPF is curved, start by considering point A at the top left-hand side of the PPF. At point A, all available resources are devoted to healthcare and none are left for education. This situation would be extreme and even ridiculous. For example, children are seeing a doctor every day, whether they are sick or not, but not attending school. People are having cosmetic surgery on every part of their bodies, but no high school or college education exists. Now imagine that some of these resources are diverted from healthcare to education, so that the economy is at point B instead of point A. Diverting some resources away from A to B causes relatively little reduction in health because the last few marginal dollars going into healthcare services are not producing much additional gain in health. However, putting those marginal dollars into education, which is completely without resources at point A, can produce relatively large gains. For this reason, the shape of the PPF from A to B is relatively flat, representing a relatively small drop-off in health and a relatively large gain in education.
+                </p>
+                <p>
+                    <Chat />
+                    Now consider the other end, at the lower right, of the production possibilities frontier. Imagine that society starts at choice D, which is devoting nearly all resources to education and very few to healthcare, and moves to point F, which is devoting all spending to education and none to healthcare. For the sake of concreteness, you can imagine that in the movement from D to F, the last few doctors must become high school science teachers, the last few nurses must become school librarians rather than dispensers of vaccinations, and the last few emergency rooms are turned into kindergartens. The gains to education from adding these last few resources to education are very small. However, the opportunity cost lost to health will be fairly large, and thus the slope of the PPF between D and F is steep, showing a large drop in health for only a small gain in education.
+                </p>
+            </section>
+        </Container>
     )
 }
 

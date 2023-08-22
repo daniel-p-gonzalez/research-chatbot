@@ -25,25 +25,18 @@ async function startServer() {
 
     const { chatUpdates } = await import('../lib/chat-updates.js')
 
-    // Vite integration
-    if (isProduction) {
-        // In production, we need to serve our static assets ourselves.
-        // (In dev, Vite's middleware serves our static assets.)
-        const sirv = (await import('sirv')).default
-        app.use(sirv(`${root}/dist/client`))
-    } else {
-        // We instantiate Vite's development server and integrate its middleware to our server.
-        // We instantiate it only in development. (It isn't needed in production and it
-        // would unnecessarily bloat our server in production.)
-        const vite = await import('vite')
-        const viteDevMiddleware = (
-            await vite.createServer({
-                root,
-                server: { middlewareMode: true }
-            })
-        ).middlewares
-        app.use(viteDevMiddleware)
-    }
+    // Express is only used in dev, in prod lambda's are used
+    // We instantiate Vite's development server and integrate its middleware to our server.
+    // We instantiate it only in development. (It isn't needed in production and it
+    // would unnecessarily bloat our server in production.)
+    const viteImp = await import('vite')
+    const vite = await viteImp.createServer({
+        root,
+        server: { middlewareMode: true }
+    })
+
+    app.use(vite.middlewares)
+
 
     app.post('/api/chat/message', async (req, res) => {
         const ctx = req.body as MessageSendContext
@@ -53,7 +46,7 @@ async function startServer() {
             "Content-Type": "text/event-stream",
         })
 
-        const { addMessageToChat, chatTranscript  } = await import('../lib/conversation.js')
+        const { addMessageToChat, chatTranscript  } = await vite.ssrLoadModule('#lib/conversation.ts')
 
         const chat = await addMessageToChat(new RequestContext(
             (updated) => {
@@ -77,7 +70,7 @@ async function startServer() {
 
     app.post('/api/chat/fetch-messages', async (req, res) => {
         const { chatId } = req.body
-        const { findChat, chatTranscript } = await import('../lib/conversation.js')
+        const { findChat, chatTranscript } = await vite.ssrLoadModule('#lib/conversation.ts')
         try {
             const chat = await findChat(chatId)
             res.json({

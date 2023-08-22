@@ -8,7 +8,7 @@ class CompletedError extends Error {  }
 // import type { Express } from 'express'
 // import type { ChatUpdatesQueue } from './chat-updates'
 //import { chatUpdates } from './chat-updates'
-import { buildPrompt } from './prompts'
+
 import { IS_PROD } from './env'
 // using vs @microsoft/fetch-event-source' until https://github.com/Azure/fetch-event-source/pull/28#issuecomment-1421976714
 import { fetchEventSource } from 'fetch-event-source-hperrin'
@@ -31,6 +31,9 @@ export const requestInference = async (
     const controller = new AbortController()
     const messages = await messagesForChatId(chat.id)
     let attempts = 0
+
+    const { buildPrompt } = await import('./prompts')
+
     const prompt = buildPrompt(messages)
     console.log(ctx, prompt)
 
@@ -40,6 +43,10 @@ export const requestInference = async (
     }
     if (!token) throw new Error("No token for together.ai")
 
+    const saveAndStream = (msg: SavedMessageModel, isPending = true) => {
+        Message.update(msg)
+        ctx.onProgress({ msgId: message.id, content: message.content, isPending })
+    }
     const response = fetchEventSource('https://api.together.xyz/inference', {
         method: 'POST',
         headers: {
@@ -53,7 +60,7 @@ export const requestInference = async (
             max_tokens: 512,
             temperature: 0.7,
             top_p: 0.7,
-            stop: ['<Student>:'],
+            stop: ['</Student>:', '<Student>:'],
             top_k: 50,
             repetition_penalty: 1,
             stream_tokens: true,
@@ -61,24 +68,22 @@ export const requestInference = async (
         onmessage(chunk) {
             console.log(chat.id, chunk.data)
             if (chunk.data == '[DONE]') {
+                message.content = message.content.trim()
+                saveAndStream(message)
                 ctx.onComplete()
                 controller.abort()
                 throw new CompletedError()
             }
             const msg = JSON.parse(chunk.data) as Choices
             const content = msg.choices[0].text
-                .replace(/^(\r\n|\r|\n)*<?TutorBot>?:(\r\n|\r|\n)*/gi, '')
-                .replace(/(\r\n|\r|\n){2,}/g, '\n\n')
 
             message.content += message.content.length ? content : content.trimStart()
 
-            Message.update(message)
-            ctx.onProgress({
-                msgId: message.id,
-                content: message.content,
-                isPending: true,
-            })
+            message.content = message.content
+                .replace(/^(\r\n|\r|\n)*<?TutorBot>?:(\r\n|\r|\n)*/gi, '')
+                .replace(/(\r\n|\r|\n){2,}/g, '\n\n')
 
+            saveAndStream(message)
         },
         onerror(err) {
             if (attempts > MAX_ATTEMPTS || err instanceof CompletedError) {
@@ -100,44 +105,6 @@ export const requestInference = async (
         }
     })
 
-
     return response
-
-
-    if (!response.ok) {
-        const status = await response.text()
-        try {
-            const data = JSON.parse(status)
-            ctx.onComplete(data.error || data.message || status)
-        }
-        catch {
-            ctx.onComplete(status)
-        }
-        return
-    }
-
-    if (!response.body) {
-        ctx.onComplete(`No Body.  status: ${await response.text()}`)
-        return
-    }
-
-
-    for await (const incoming of response.body) {
-
-        let chunk = ""
-        console.log(`${ctx.chatId}: ${String(incoming)}`)
-
-        for (const line of String(incoming).split(/(\r\n|\r|\n){2}/g)) {
-            const content = line.trim()
-            if (content.length) {
-                chunk += content
-            } else {
-                await parseChunk(chunk, message, ctx)
-                chunk = ''
-            }
-
-        }
-
-    }
 
 }
