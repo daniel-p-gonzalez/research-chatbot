@@ -1,0 +1,43 @@
+#!/usr/bin/env zsh
+
+set -e
+
+env=${1:-staging}
+
+# echo yes if env equals prod
+if [ "$env" = "prod" ]; then
+  env=""
+else
+  env="-${env}"
+fi
+
+ASSETS_BUCKET=kinetic${env}-chatbot-assets
+export AWS_PAGER="" # silence cli using "less" to display output
+
+yarn run build:all
+
+cd dist
+
+for file in *-lambda.js; do
+  handler="${file%-lambda.js}"
+  echo "bundling $handler"
+
+  lambda="kinetic${env}-$handler"
+
+  echo "updating $lambda"
+
+  zip $handler.zip $file
+
+  aws lambda update-function-code --function-name $lambda --zip-file fileb://./$handler.zip >> deploy.log
+  sleep 2
+
+  aws lambda publish-version --function-name $lambda >> deploy.log
+  sleep 2
+done
+
+s5cmd sync --size-only client/ s3://${ASSETS_BUCKET}/
+
+
+# s5cmd cp dist/assets/ s3://$ASSETS_BUCKET/assets/
+# s5cmd cp  -acl public-read error.html s3://$ASSETS_BUCKET/error.html
+# s5cmd cp  -acl public-read dist/index.html s3://$ASSETS_BUCKET/editor/index.html

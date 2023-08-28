@@ -52,5 +52,4 @@ export type MessageSendContext = {
 //     model?: string
 // }
 
-export const DEFAULT_MODEL = 'llama-2-70b'
-
+export const DEFAULT_MODEL = 'llama'

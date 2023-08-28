@@ -7,6 +7,13 @@ import { PageShell } from './PageShell'
 import { escapeInject, dangerouslySkipEscape } from 'vite-plugin-ssr/server'
 import logoUrl from './logo.svg'
 import type { PageContextServer } from './types'
+import createEmotionServer from "@emotion/server/create-instance";
+import { CacheProvider } from "@emotion/react";
+import createCache from '@emotion/cache';
+
+const key = 'css'
+const cache = createCache({ key })
+const { extractCritical } = createEmotionServer(cache)
 
 async function render(pageContext: PageContextServer) {
   const { Page, pageProps } = pageContext
@@ -17,6 +24,8 @@ async function render(pageContext: PageContextServer) {
       <Page {...pageProps} />
     </PageShell>
   )
+
+  const { html, css, ids } = extractCritical(pageHtml);
 
   // See https://vite-plugin-ssr.com/head
   const { documentProps } = pageContext.exports
@@ -30,10 +39,11 @@ async function render(pageContext: PageContextServer) {
         <link rel="icon" href="${logoUrl}" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <meta name="description" content="${desc}" />
+        <style data-emotion="${key} ${ids.join(' ')}">${dangerouslySkipEscape(css)}</style>
         <title>${title}</title>
       </head>
       <body>
-        <div id="react-root">${dangerouslySkipEscape(pageHtml)}</div>
+        <div id="react-root">${dangerouslySkipEscape(html)}</div>
       </body>
     </html>`
 

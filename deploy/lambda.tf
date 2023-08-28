@@ -13,7 +13,7 @@ module "chat_message_lambda" {
 
   timeout                    = 900
   invoke_mode                = "RESPONSE_STREAM"
-  handler                    = "chat-message-lambda.handler"
+  handler                    = "chatbot-post-message-lambda.handler"
   runtime                    = "nodejs18.x"
   create_lambda_function_url = true
   environment_variables      = local.lambda_env
@@ -28,7 +28,7 @@ module "chat_message_lambda" {
       path = "${path.module}/.."
       commands = [
         "yarn run build:all",
-        ":zip dist/chat-message-lambda.js .",
+        ":zip dist/chatbot-post-message-lambda.js .",
       ]
     }
   ]
@@ -39,7 +39,7 @@ module "fetch_chat_messages_lambda" {
   source                     = "terraform-aws-modules/lambda/aws"
   function_name              = "kinetic${local.env_dash}-chatbot-fetch-messages"
   timeout                    = 60
-  handler                    = "chat-history-lambda.handler"
+  handler                    = "chatbot-fetch-messages-lambda.handler"
   runtime                    = "nodejs18.x"
   create_lambda_function_url = true
   environment_variables      = local.lambda_env
@@ -50,7 +50,7 @@ module "fetch_chat_messages_lambda" {
       path = "${path.module}/.."
       commands = [
         "yarn run build:all",
-        ":zip dist/chat-history-lambda.js .",
+        ":zip dist/chatbot-fetch-messages-lambda.js .",
       ]
     }
   ]

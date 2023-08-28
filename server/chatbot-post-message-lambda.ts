@@ -11,7 +11,7 @@ async function myHandler(
   event: APIGatewayProxyEventV2,
   responseStream: Writable
 ): Promise<void> {
-  console.log('Handler got event:', event)
+
     const ctx = JSON.parse(event.body || '') as MessageSendContext
     const metadata = {
         statusCode: 200,

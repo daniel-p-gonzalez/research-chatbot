@@ -17,6 +17,7 @@
     "@chatscope/chat-ui-kit-react": "^1.10.1",
     "@emotion/css": "^11.11.2",
     "@emotion/react": "^11.11.1",
+    "@emotion/server": "^11.11.0",
     "@emotion/styled": "^11.11.0",
     "@mantine/core": "^6.0.17",
     "@mantine/form": "^6.0.17",

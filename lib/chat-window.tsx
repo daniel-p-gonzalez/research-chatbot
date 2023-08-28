@@ -12,7 +12,7 @@ import { sendMsgAndListen } from '#lib/send-and-listen'
 import { useState, useEffect } from 'react'
 import { Request } from '#lib/request'
 import { Box } from 'boxible'
-import { CloseButton, Button } from '@mantine/core';
+import { CloseButton, Button, Select } from '@mantine/core';
 
 
 function makeMessage({ isFirst, isLast, message }: { index: number, isFirst: boolean, isLast: boolean, message: MessageJSON }) {
@@ -96,13 +96,24 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ onClose, isOpen, topic, 
     return (
         <Wrapper width="350px" height="500px" direction="column" >
 
-            <Box justify="between" align="center" padding="horizontal">
+            <Box justify="between" align="center" padding="default">
                 <Button
                     onClick={() => navigate('/chat')}
-                    rightIcon={<IconPlus />} size="sm"
+                    rightIcon={<IconPlus />} size="xs"
                 >
                     New Chat
                 </Button>
+                <Select
+                    mt="xs"
+                    size="xs"
+                    style={{ maxWidth: 120 }}
+                    value={model}
+                    onChange={(m) => m && setModel(m)}
+                    data={[ { label: 'LLama', value: 'chat' }, { label: 'Vicuna', value: 'quiz' }]}
+                    placeholder="LLM Model"
+                    label={false}
+
+                />
                 <CloseButton onClick={onClose} size="xl" title="Close chat window" />
             </Box>
 

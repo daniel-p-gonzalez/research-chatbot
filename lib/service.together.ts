@@ -56,7 +56,7 @@ export const requestInference = async (
         signal: controller.signal,
         body: JSON.stringify({
             prompt,
-            model: MODELS[ctx.model || DEFAULT_MODEL] || MODELS[DEFAULT_MODEL],
+            model: MODELS[ctx.model || DEFAULT_MODEL] || MODELS[DEFAULT_MODEL] || 'togethercomputer/llama-2-70b-chat',
             max_tokens: 512,
             temperature: 0.7,
             top_p: 0.7,
