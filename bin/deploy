@@ -35,7 +35,7 @@ for file in *-lambda.js; do
   sleep 2
 done
 
-s5cmd sync --size-only client/ s3://${ASSETS_BUCKET}/
+s5cmd sync client/ s3://${ASSETS_BUCKET}/
 
 
 # s5cmd cp dist/assets/ s3://$ASSETS_BUCKET/assets/
