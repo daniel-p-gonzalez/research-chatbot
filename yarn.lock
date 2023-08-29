@@ -1609,10 +1609,10 @@
   resolved "https://registry.yarnpkg.com/@microsoft/fetch-event-source/-/fetch-event-source-2.0.1.tgz#9ceecc94b49fbaa15666e38ae8587f64acce007d"
   integrity sha512-W6CLUJ2eBMw3Rec70qrsEW0jOm/3twwJv21mrmj2yORiaVmVYGS4sSS5yUwvQc1ZlDLYGPnClVWmUUMagKNsfA==
 
-"@nathanstitt/sundry@^1.7.4":
-  version "1.7.4"
-  resolved "https://registry.yarnpkg.com/@nathanstitt/sundry/-/sundry-1.7.4.tgz#3029bb9652bd78948083c065498eb61c518ad12e"
-  integrity sha512-XaGl7BCUDwUPXfrcpAKflGLs8PwaVESVGsuRUg/Xowvgs2SFwTho/P/6uFE3NxnlIPI0rdK95AUHeBN0puupSA==
+"@nathanstitt/sundry@^1.7.5":
+  version "1.7.5"
+  resolved "https://registry.yarnpkg.com/@nathanstitt/sundry/-/sundry-1.7.5.tgz#45f32558926a855842b56ef4d85c9d58aa3f9e9a"
+  integrity sha512-MLXoblNMRw1fJvzAd3Mcazo2J/deCOw+vUiXy5iKyDvRxemCGjnXC71YUXrUH0U1I0SZm60KB7oSkf2+zcz0bw==
   dependencies:
     "@hookform/resolvers" "^2.9"
     "@iconify-icons/bi" "^1.2.15"

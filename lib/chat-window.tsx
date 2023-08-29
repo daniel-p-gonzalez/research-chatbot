@@ -13,6 +13,7 @@ import { useState, useEffect } from 'react'
 import { Request } from '#lib/request'
 import { Box } from 'boxible'
 import { CloseButton, Button, Select } from '@mantine/core';
+import { useLocalstorageState } from '@nathanstitt/sundry/base';
 
 
 function makeMessage({ isFirst, isLast, message }: { index: number, isFirst: boolean, isLast: boolean, message: MessageJSON }) {
@@ -48,8 +49,8 @@ type ChatWindowProps = {
 export const ChatWindow: React.FC<ChatWindowProps> = ({ onClose, isOpen, topic, subject }) => {
 
     const defaultChatId = isBrowser() ? window.location?.hash?.slice(1) || '' : ''
-    const [model, setModel] = useState<string>(DEFAULT_MODEL)
 
+    const [model, setModel] = useLocalstorageState('model', DEFAULT_MODEL)
     const [chat, setChat] = useState<ChatMessageReply>({id: defaultChatId, transcript: []})
 
     useEffect(() => {
@@ -109,7 +110,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ onClose, isOpen, topic, 
                     style={{ maxWidth: 120 }}
                     value={model}
                     onChange={(m) => m && setModel(m)}
-                    data={[ { label: 'LLama', value: 'chat' }, { label: 'Vicuna', value: 'quiz' }]}
+                    data={[ { label: 'TogetherAI', value: 'chat' }, { label: 'SelfHosted', value: 'quiz' }]}
                     placeholder="LLM Model"
                     label={false}
 

@@ -53,7 +53,7 @@ export const requestInference = async (
         signal: controller.signal,
         body: JSON.stringify({
             messages: messages.map(m => ({ role: m.isBot ? 'assistant' : 'user', content: m.content })),
-            model: 'nash-vicuna-33b-v1dot3-ep2-w-rag-w-simple',
+            model: 'nash-vicuna-13b-v1dot5-ep2-w-rag-w-simple',
             max_tokens: 512,
             temperature: 0.7,
             top_p: 0.7,
@@ -68,8 +68,11 @@ export const requestInference = async (
     const json = await response.json() as Chunk
     let msg: string = json.choices[0].message.content
     try {
-         msg = (JSON.parse(json.choices[0].message.content) as TutorBotReply).Tutorbot
-    } catch {}
+         msg = (JSON.parse(json.choices[0]?.message?.content) as TutorBotReply).Tutorbot
+    } catch(e) {
+        console.log(`CAUGHT, msg was:\n${json.choices[0]?.message?.content}`)
+        console.warn(e)
+    }
 
     console.log(JSON.stringify(json))
 
