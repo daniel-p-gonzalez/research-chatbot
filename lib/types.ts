@@ -52,4 +52,4 @@ export type MessageSendContext = {
 //     model?: string
 // }
 
-export const DEFAULT_MODEL = 'llama'
+export const DEFAULT_MODEL = 'quiz'
