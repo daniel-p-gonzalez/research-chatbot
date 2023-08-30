@@ -36,7 +36,7 @@ const Wrapper = styled(Box)({
     background: 'white',
     position: 'absolute',
     right: 10,
-    bottom: -50,
+    bottom: -100,
 })
 
 type ChatWindowProps = {
@@ -95,7 +95,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ onClose, isOpen, topic, 
     }
 
     return (
-        <Wrapper width="350px" height="500px" direction="column" >
+        <Wrapper width="450px" height="600px" direction="column" >
 
             <Box justify="between" align="center" padding="default">
                 <Button
