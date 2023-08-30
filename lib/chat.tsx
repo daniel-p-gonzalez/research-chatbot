@@ -4,15 +4,13 @@ import { useToggle } from '@nathanstitt/sundry/base'
 
 import { LaunchIcon } from '#lib/launch-icon';
 
-const Wrapper = styled.span({
-    display: 'block',
+const Wrapper = styled.div({
     float: 'right',
     overflow: 'visible',
     width: 200,
     height: 150,
     margin: 10,
     marginLeft: 0,
-    position: 'relative',
 })
 
 type ChatProps = {

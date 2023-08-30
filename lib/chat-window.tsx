@@ -2,8 +2,8 @@ import '@chatscope/chat-ui-kit-styles/dist/default/styles.min.css';
 import styled from '@emotion/styled'
 import {
     MainContainer, ChatContainer, MessageList, Message as ChatMessage, MessageInput,
-
 } from '@chatscope/chat-ui-kit-react';
+import { Rnd } from 'react-rnd'
 import { navigate } from 'vite-plugin-ssr/client/router'
 import { IconPlus } from '@tabler/icons-react';
 import { isBrowser } from '#lib/util'
@@ -34,9 +34,13 @@ function makeMessage({ isFirst, isLast, message }: { index: number, isFirst: boo
 const Wrapper = styled(Box)({
     border: '1px solid',
     background: 'white',
-    position: 'absolute',
-    right: 10,
-    bottom: -100,
+})
+
+const Header = styled(Box)({
+    cursor: 'move',
+    '.react-draggable-dragging &': {
+        cursor: 'grabbing',
+    }
 })
 
 type ChatWindowProps = {
@@ -95,9 +99,21 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ onClose, isOpen, topic, 
     }
 
     return (
-        <Wrapper width="450px" height="600px" direction="column" >
+        <Rnd default={{
+            x: -250,
+            y: -350,
+            width: 450,
+            height: 600,
+        }}
+        minWidth={350}
+        minHeight={450}
+        bounds="window"
+        dragHandleClassName='header'
+    >
 
-            <Box justify="between" align="center" padding="default">
+        <Wrapper width={"100%"} height={"100%"} direction="column">
+
+            <Header justify="between" align="center" padding="default" className="header">
                 <Button
                     onClick={() => navigate('/chat')}
                     rightIcon={<IconPlus />} size="xs"
@@ -116,7 +132,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ onClose, isOpen, topic, 
 
                 />
                 <CloseButton onClick={onClose} size="xl" title="Close chat window" />
-            </Box>
+            </Header>
 
 
             <MainContainer style={{ height: '100%' }}>
@@ -142,6 +158,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ onClose, isOpen, topic, 
                 </ChatContainer>
             </MainContainer>
         </Wrapper>
+    </Rnd>
     )
 }
 
