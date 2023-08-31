@@ -1,4 +1,4 @@
-import { usePageContext } from './usePageContext'
+import { usePageContext } from '#lib/page-context'
 
 export { Link }
 

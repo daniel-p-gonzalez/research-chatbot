@@ -4,16 +4,15 @@ import {
     MainContainer, ChatContainer, MessageList, Message as ChatMessage, MessageInput,
 } from '@chatscope/chat-ui-kit-react';
 import { Rnd } from 'react-rnd'
-import { navigate } from 'vite-plugin-ssr/client/router'
-import { IconPlus } from '@tabler/icons-react';
-import { isBrowser } from '#lib/util'
-import { ChatMessageReply, WelcomeMessage, MessageJSON, DEFAULT_MODEL } from '#lib/types'
+import { ChatMessageReply, WelcomeMessage, MessageJSON, DEFAULT_MODEL, CHATIDPARAM } from '#lib/types'
+import { pushNewSearchParam, searchParam } from '#lib/util'
+
 import { sendMsgAndListen } from '#lib/send-and-listen'
 import { useState, useEffect } from 'react'
 import { Request } from '#lib/request'
 import { Box } from 'boxible'
 import { CloseButton, Button, Select } from '@mantine/core';
-import { useLocalstorageState } from '@nathanstitt/sundry/base';
+import { useLocalstorageState, useEventListener } from '@nathanstitt/sundry/base';
 
 
 function makeMessage({ isFirst, isLast, message }: { index: number, isFirst: boolean, isLast: boolean, message: MessageJSON }) {
@@ -34,6 +33,7 @@ function makeMessage({ isFirst, isLast, message }: { index: number, isFirst: boo
 const Wrapper = styled(Box)({
     border: '1px solid',
     background: 'white',
+    filter: 'drop-shadow(1px 1px 4px #000)',
 })
 
 const Header = styled(Box)({
@@ -50,12 +50,12 @@ type ChatWindowProps = {
     isOpen: boolean
 }
 
+
 export const ChatWindow: React.FC<ChatWindowProps> = ({ onClose, isOpen, topic, subject }) => {
 
-    const defaultChatId = isBrowser() ? window.location?.hash?.slice(1) || '' : ''
 
     const [model, setModel] = useLocalstorageState('model', DEFAULT_MODEL)
-    const [chat, setChat] = useState<ChatMessageReply>({id: defaultChatId, transcript: []})
+    const [chat, setChat] = useState<ChatMessageReply>({id: searchParam(CHATIDPARAM) || '', transcript: []})
 
     useEffect(() => {
         if (chat.id) {
@@ -74,6 +74,10 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ onClose, isOpen, topic, 
         }
     }, [])
 
+    useEffect(() => {
+        if (!isOpen) setChat({ id: '', transcript: [] })
+    }, [isOpen])
+
     if (!isOpen) return null
 
     const onSend = (_:string, message: string) => {
@@ -83,7 +87,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ onClose, isOpen, topic, 
         sendMsgAndListen({ chatId: cc.id, message, model, topic, subject }, {
             initial: (newChat) => {
                 if (!cc.id) {
-                    history.pushState({}, '', `/chat#${newChat.id}`)
+                    pushNewSearchParam(CHATIDPARAM, newChat.id)
                 }
                 Object.assign(cc, newChat)
                 setChat(newChat)
@@ -105,21 +109,15 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ onClose, isOpen, topic, 
             width: 450,
             height: 600,
         }}
-        minWidth={350}
-        minHeight={450}
-        bounds="window"
+        minWidth="350px"
+        minHeight="450px"
+
         dragHandleClassName='header'
     >
 
         <Wrapper width={"100%"} height={"100%"} direction="column">
 
             <Header justify="between" align="center" padding="default" className="header">
-                <Button
-                    onClick={() => navigate('/chat')}
-                    rightIcon={<IconPlus />} size="xs"
-                >
-                    New Chat
-                </Button>
                 <Select
                     mt="xs"
                     size="xs"

@@ -43,6 +43,10 @@ export const requestInference = async (
     }
 
     let attempts = 0
+    const { buildPrompt } = await import('./prompts')
+
+    const prompt = buildPrompt(ctx, messages)
+    console.log(ctx, prompt)
 
     await fetchEventSource('https://luffy-chat.staging.kinetic.openstax.org/v1/chat/completions', {
         method: 'POST',
@@ -52,7 +56,8 @@ export const requestInference = async (
         },
         signal: controller.signal,
         body: JSON.stringify({
-            messages: messages.map(m => ({ role: m.isBot ? 'assistant' : 'user', content: m.content })),
+            messages: prompt,
+                // messages.map(m => ({ role: m.isBot ? 'assistant' : 'user', content: m.content })),
             model: 'nash-vicuna-13b-v1dot5-ep2-w-rag-w-simple',
             max_tokens: 512,
             temperature: 0.7,

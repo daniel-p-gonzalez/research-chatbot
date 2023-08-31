@@ -53,3 +53,5 @@ export type MessageSendContext = {
 // }
 
 export const DEFAULT_MODEL = 'quiz'
+
+export const CHATIDPARAM = 'chatId'

@@ -10,6 +10,7 @@ const config: UserConfig = {
     resolve: {
         alias: {
             '#lib': '/lib',
+            '#components': '/components',
         }
     }
 }

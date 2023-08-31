@@ -10,7 +10,8 @@
     "skipLibCheck": true,
     "esModuleInterop": true,
     "paths": {
-      "#lib/*": ["./lib/*"]
+      "#lib/*": ["./lib/*"],
+      "#comonents/*": ["./comonents/*"]
     }
   },
   "ts-node": {
