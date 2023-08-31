@@ -1,11 +1,11 @@
-import { Container } from '@mantine/core';
-import { Chat } from '#lib/chat'
+import { PageContent, Chat }  from '#components/page'
+
 
 
 export const Page = () => {
 
     return (
-        <Container>
+        <PageContent>
 
             <section>
                 <h4>2.2 The PPF and the Law of Increasing Opportunity Cost</h4>
@@ -21,7 +21,7 @@ export const Page = () => {
                     Now consider the other end, at the lower right, of the production possibilities frontier. Imagine that society starts at choice D, which is devoting nearly all resources to education and very few to healthcare, and moves to point F, which is devoting all spending to education and none to healthcare. For the sake of concreteness, you can imagine that in the movement from D to F, the last few doctors must become high school science teachers, the last few nurses must become school librarians rather than dispensers of vaccinations, and the last few emergency rooms are turned into kindergartens. The gains to education from adding these last few resources to education are very small. However, the opportunity cost lost to health will be fairly large, and thus the slope of the PPF between D and F is steep, showing a large drop in health for only a small gain in education.
                 </p>
             </section>
-        </Container>
+        </PageContent>
     )
 }
 
