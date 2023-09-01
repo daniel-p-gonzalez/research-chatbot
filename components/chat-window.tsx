@@ -121,10 +121,12 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ onClose, isOpen, topic, 
                 <Select
                     mt="xs"
                     size="xs"
-                    style={{ maxWidth: 120 }}
+                    style={{ maxWidth: 160 }}
                     value={model}
                     onChange={(m) => m && setModel(m)}
-                    data={[ { label: 'TogetherAI', value: 'chat' }, { label: 'SelfHosted', value: 'quiz' }]}
+                    data={[ { label: 'llama2-70B', value: 'togethercomputer/llama-2-70b-chat' },
+                            { label: 'llama2-13B', value: 'togethercomputer/llama-2-13b-chat'},
+                            { label: 'SelfHosted (33B)', value: 'quiz' }]}
                     placeholder="LLM Model"
                     label={false}
 

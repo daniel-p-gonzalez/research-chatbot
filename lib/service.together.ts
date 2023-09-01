@@ -18,10 +18,17 @@ const MAX_ATTEMPTS = 3
 type Choices = { choices: { text: string }[] }
 
 const MODELS: Record<string, string> = {
-    'llama-2-7b': 'togethercomputer/llama-2-7b-chat',
-    'llama-2-13b': 'togethercomputer/llama-2-13b-chat',
-    'llama-2-70b': 'togethercomputer/llama-2-70b-chat',
+    'togethercomputer/CodeLlama-34b-Instruct': 'togethercomputer/CodeLlama-34b-Instruct',
+    'togethercomputer/llama-2-70b-chat': 'togethercomputer/llama-2-70b-chat',
+    'togethercomputer/llama-2-13b-chat': 'togethercomputer/llama-2-13b-chat',
     'vicuna-13b': 'lmsys/vicuna-13b-v1.3',
+}
+
+export const messageForPrompt = (m: MessageModel) => {
+    if (m.isBot) {
+        return m.content
+    }
+    return `[INST] ${m.content}\n [/INST]`
 }
 
 
@@ -32,9 +39,11 @@ export const requestInference = async (
     const messages = await messagesForChatId(chat.id)
     let attempts = 0
 
-    const { buildPrompt } = await import('./prompts')
+    const { buildPrompt, PROMPT_INST_SUFFIX } = await import('./prompts')
 
-    const prompt = buildPrompt(ctx, messages)
+
+    const prompt = buildPrompt(ctx, messages) + messages.slice(0, -2).map(messageForPrompt).join('\n\n') + PROMPT_INST_SUFFIX
+
     console.log(ctx, prompt)
 
     let token = process.env.TOGETHER_AI_API_TOKEN
@@ -47,7 +56,7 @@ export const requestInference = async (
         Message.update(msg)
         ctx.onProgress({ msgId: message.id, content: message.content, isPending })
     }
-    const response = fetchEventSource('https://api.together.xyz/inference', {
+    const response = fetchEventSource('https://api.together.xyz/api/inference', {
         method: 'POST',
         headers: {
             Authorization: `Bearer ${token}`,
@@ -55,12 +64,14 @@ export const requestInference = async (
         },
         signal: controller.signal,
         body: JSON.stringify({
-            prompt,
-            model: MODELS[ctx.model || DEFAULT_MODEL] || MODELS[DEFAULT_MODEL] || 'togethercomputer/llama-2-70b-chat',
-            max_tokens: 512,
+            prompt: ctx.message,
+            model: ctx.model,
+            prompt_format_string: prompt,
+            max_tokens: 768,
             temperature: 0.7,
             top_p: 0.7,
-            stop: ['</Student>:', '<Student>:'],
+            type: 'chat',
+            stop: ['</s>:', '[INST]'],
             top_k: 50,
             repetition_penalty: 1,
             stream_tokens: true,

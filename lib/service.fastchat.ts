@@ -1,9 +1,11 @@
 import { SavedMessageModel, SavedChatModel, Message, messagesForChatId } from './data'
 import { RequestContext } from './request-context'
 import { getParamStoreValue } from './aws'
+import type { MessageModel } from './data'
 import { fetchEventSource } from 'fetch-event-source-hperrin'
 
 import { IS_PROD } from './env'
+import { PROMPT_TEXT_SUFFIX } from './prompts'
 
 class CompletedError extends Error {  }
 const MAX_ATTEMPTS = 3
@@ -22,6 +24,11 @@ type Chunk = {
 }
 
 
+export const messageForPrompt = (m: MessageModel) => {
+    return (m.isBot ? 'TUTORBOT: ' : 'STUDENT: ') + m.content
+}
+
+
 export const requestInference = async (
     chat: SavedChatModel, message: SavedMessageModel, ctx: RequestContext,
 ) => {
@@ -30,7 +37,7 @@ export const requestInference = async (
 
     // const { buildPrompt } = await import('./prompts')
     // const prompt = buildPrompt(ctx, messages)
-    // console.log(ctx, prompt)
+
     let token = process.env.TOGETHER_AI_API_TOKEN // yes just copied same token
     if (IS_PROD && !token) {
         token = await getParamStoreValue('together-ai-api-token')
@@ -45,7 +52,11 @@ export const requestInference = async (
     let attempts = 0
     const { buildPrompt } = await import('./prompts')
 
-    const prompt = buildPrompt(ctx, messages)
+    const prompt = buildPrompt(ctx, messages) +
+        'Your previous conversation is:\n\n' +
+        messages.slice(0, -1).map(messageForPrompt).join('\n\n') +
+        '\n\n' + PROMPT_TEXT_SUFFIX
+
     console.log(ctx, prompt)
 
     await fetchEventSource('https://luffy-chat.staging.kinetic.openstax.org/v1/chat/completions', {
@@ -57,8 +68,8 @@ export const requestInference = async (
         signal: controller.signal,
         body: JSON.stringify({
             messages: prompt,
-                // messages.map(m => ({ role: m.isBot ? 'assistant' : 'user', content: m.content })),
-            model: 'nash-vicuna-13b-v1dot5-ep2-w-rag-w-simple',
+            // model: 'nash-vicuna-13b-v1dot5-ep2-w-rag-w-simple',
+            model: 'nash-vicuna-33b-v1dot3-ep2-w-rag-w-simple',
             max_tokens: 512,
             temperature: 0.7,
             top_p: 0.7,
@@ -66,6 +77,7 @@ export const requestInference = async (
             repetition_penalty: 1,
             stream: true,
         }),
+        inputOnOpen() { return null },
         onmessage(chunk) {
             console.log(chat.id, chunk.data)
             if (chunk.data == '[DONE]') {
