@@ -42,7 +42,7 @@ export const requestInference = async (
     }
 
     let attempts = 0
-    const { buildPrompt } = await import('./prompts')
+    const { buildPrompt, cleanMessageContent } = await import('./prompts')
 
     const prompt = buildPrompt(ctx, messages) +
         'Your previous conversation is:\n\n' +
@@ -87,9 +87,7 @@ export const requestInference = async (
 
             message.content += message.content.length ? content : content.trimStart()
 
-            message.content = message.content
-                .replace(/^(\r\n|\r|\n)*<?TutorBot>?:(\r\n|\r|\n)*/gi, '')
-                .replace(/(\r\n|\r|\n){2,}/g, '\n\n')
+            message.content = cleanMessageContent(message.content)
 
             saveAndStream(message)
         },
@@ -113,22 +111,4 @@ export const requestInference = async (
         }
     })
 
-    // console.log(response.ok)
-
-    // const json = await response.json() as Chunk
-    // let msg: string = json.choices[0].message.content
-    // try {
-    //      msg = (JSON.parse(json.choices[0]?.message?.content) as TutorBotReply).Tutorbot
-    // } catch(e) {
-    //     console.log(`CAUGHT, msg was:\n${json.choices[0]?.message?.content}`)
-    //     console.warn(e)
-    // }
-
-    // console.log(JSON.stringify(json))
-
-    // message.content = msg
-
-    // Message.update(message)
-    // ctx.onProgress({ msgId: message.id, content: message.content, isPending: false })
-    // ctx.onComplete()
 }

@@ -5,21 +5,6 @@ export type MessageJSON = {
     isPending?: boolean
 }
 
-// export type Message = {
-//     uuid: string
-//     isBot?: boolean
-//     message: string
-//     prefixed: string
-//     asJson: MessageJSON
-// }
-
-export const WelcomeMessage = 'Hello, I’m TutorBot. How can I help you?'
-
-// export type ChatStore = {
-//     uuid: string
-//     messagesForPrompt: Message[]
-//     messages: Record<string, Message>
-// }
 
 export interface User {
     id: number;
@@ -64,12 +49,6 @@ export type MessageSendContext = {
     subject: string
     model?: string
 }
-
-// export type RequestContextOptions = {
-//     chatId: string
-//     message: string
-//     model?: string
-// }
 
 export const DEFAULT_MODEL = 'quiz'
 

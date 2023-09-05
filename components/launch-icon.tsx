@@ -150,7 +150,7 @@ export const LaunchIcon: React.FC<{ onClick:() => void, isOpen: boolean }> = ({ 
                 />
 
             </Animation>
-            <Label>Practice with TutorBot</Label>
+            <Label>Practice with Staxly</Label>
         </Icon>
     );
 }

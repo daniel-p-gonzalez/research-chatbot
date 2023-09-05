@@ -78,3 +78,9 @@ export const buildPrompt = (ctx: MessageSendContext,  transcript: MessageModel[]
     return prefix + CONTINUATION + '\n' + initialMessage(ctx) + '\n\n'
 
 }
+
+export function cleanMessageContent(content: string) {
+    return content
+        .replace(/^(\r\n|\r|\n)*<?TutorBot>?:(\r\n|\r|\n)*/gi, '')
+        .replace(/(\r\n|\r|\n){2,}/g, '\n\n')
+}

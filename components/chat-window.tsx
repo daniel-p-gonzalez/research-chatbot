@@ -23,7 +23,7 @@ function makeMessage({ isFirst, isLast, message }: { index: number, isFirst: boo
             direction: message.isBot ? 'incoming' : 'outgoing',
             message: message.content || '…',
             sentTime: "just now",
-            sender: message.isBot ? 'TutorBot' : 'You',
+            sender: message.isBot ? 'Staxly' : 'You',
         }} />
 
     )
@@ -143,7 +143,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ onClose, isOpen, topic, 
                             direction: 'incoming',
                             message: initialMessage({ topic, subject }),
                             sentTime: "just now",
-                            sender: 'TutorBot',
+                            sender: 'Staxly',
                         }} />
                         {chat.transcript.map((msg, i) => makeMessage({ index: i, isFirst: i == 0, isLast: (i == chat.transcript.length - 1), message: msg }))}
                     </MessageList>

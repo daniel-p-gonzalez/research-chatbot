@@ -34,7 +34,7 @@ export const requestInference = async (
     const messages = await messagesForChatId(chat.id)
     let attempts = 0
 
-    const { buildPrompt, PROMPT_INST_SUFFIX } = await import('./prompts')
+    const { buildPrompt, cleanMessageContent, PROMPT_INST_SUFFIX } = await import('./prompts')
 
 
     const prompt = buildPrompt(ctx, messages) + messages.slice(0, -2).map(messageForPrompt).join('\n\n') + PROMPT_INST_SUFFIX
@@ -81,9 +81,7 @@ export const requestInference = async (
 
             message.content += message.content.length ? content : content.trimStart()
 
-            message.content = message.content
-                .replace(/^(\r\n|\r|\n)*<?TutorBot>?:(\r\n|\r|\n)*/gi, '')
-                .replace(/(\r\n|\r|\n){2,}/g, '\n\n')
+            message.content = cleanMessageContent(message.content)
 
             saveAndStream(message)
         },

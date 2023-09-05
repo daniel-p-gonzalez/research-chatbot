@@ -5,9 +5,7 @@ export const IS_PROD = process.env.NODE_ENV === 'production'
 export const ENV_NAME = process.env.ENV_NAME || 'dev'
 
 export async function getConfigValue(path: string, decryption = false) {
-    console.log(path, path.toUpperCase(), process.env, process.env[path.toUpperCase()])
     const envValue = process.env[path.toUpperCase()]
-    console.log(envValue)
     if (envValue != null ) return envValue
 
     const client = new SSMClient({ region: process.env.AWS_REGION || 'us-east-1' })
