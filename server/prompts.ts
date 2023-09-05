@@ -81,6 +81,6 @@ export const buildPrompt = (ctx: MessageSendContext,  transcript: MessageModel[]
 
 export function cleanMessageContent(content: string) {
     return content
-        .replace(/^(\r\n|\r|\n)*<?TutorBot>?:(\r\n|\r|\n)*/gi, '')
+        .replace(/^(\r\n|\r|\n)*<?(TutorBot|Staxly)>?:(\r\n|\r|\n)*/gi, '')
         .replace(/(\r\n|\r|\n){2,}/g, '\n\n')
 }
