@@ -36,15 +36,18 @@ case $ENV in
   ;;
   *)
     echo "Usage: $0 <dev|staging|production>" 1>&2;
-    exit 1
     ;;
 esac
 
 # terraform init -backend-config=${ENV}.conf
 
-export TF_VAR_qualtrics_api_key=$(heroku config:get QUALTRICS_API_KEY --app $app)
-export TF_VAR_base_domain_name=$domain
-export TF_VAR_enclave_api_key=${heroku_enclave_api_key:-"ec_dev_1bG346BDBGEsG5Dck8H6sAiRBJ7Vt52Vwcno"}
-export TF_VAR_environment_name=$ENV
-export TF_VAR_sso_cookie_name=$cookie_name
-export TF_VAR_kinetic_url=${kinetic_url:-"https://$domain/"}
+if [[ -n "$app" ]]; then
+  export TF_VAR_sso_cookie_name=$cookie_name
+  export TF_VAR_sso_cookie_private_key=$(heroku config:get COOKIE_PRIVATE_KEY --app $app)
+  export TF_VAR_sso_cookie_public_key=$(heroku config:get COOKIE_PUBLIC_KEY --app $app)
+  export TF_VAR_qualtrics_api_key=$(heroku config:get QUALTRICS_API_KEY --app $app)
+  export TF_VAR_base_domain_name=$domain
+  export TF_VAR_enclave_api_key=${heroku_enclave_api_key:-"ec_dev_1bG346BDBGEsG5Dck8H6sAiRBJ7Vt52Vwcno"}
+  export TF_VAR_environment_name=$ENV
+  export TF_VAR_kinetic_url=${kinetic_url:-"https://$domain/"}
+fi

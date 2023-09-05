@@ -1,31 +1,29 @@
 import { SavedMessageModel, SavedChatModel, Message, messagesForChatId } from './data'
 import { RequestContext } from './request-context'
-import { getParamStoreValue } from './aws'
+import { getConfigValue } from './config'
 import type { MessageModel } from './data'
-import { fetchEventSource } from 'fetch-event-source-hperrin'
-
-import { IS_PROD } from './env'
-import { PROMPT_TEXT_SUFFIX } from './prompts'
 
 class CompletedError extends Error {  }
+
+// using vs @microsoft/fetch-event-source' until https://github.com/Azure/fetch-event-source/pull/28#issuecomment-1421976714
+import { fetchEventSource } from 'fetch-event-source-hperrin'
+
 const MAX_ATTEMPTS = 3
 
-type Chunk = {
-    id: string
-    model: string
-    choices: Array<{
-        index: number
-        delta: {
-            role: string
-            content?: string
-        }
-    }>
-    finish_reason: null | string
+type Choices = { choices: { text: string }[] }
+
+const MODELS: Record<string, string> = {
+    'togethercomputer/CodeLlama-34b-Instruct': 'togethercomputer/CodeLlama-34b-Instruct',
+    'togethercomputer/llama-2-70b-chat': 'togethercomputer/llama-2-70b-chat',
+    'togethercomputer/llama-2-13b-chat': 'togethercomputer/llama-2-13b-chat',
+    'vicuna-13b': 'lmsys/vicuna-13b-v1.3',
 }
 
-
 export const messageForPrompt = (m: MessageModel) => {
-    return (m.isBot ? 'TUTORBOT: ' : 'STUDENT: ') + m.content
+    if (m.isBot) {
+        return m.content
+    }
+    return `[INST] ${m.content}\n [/INST]`
 }
 
 
@@ -34,32 +32,22 @@ export const requestInference = async (
 ) => {
     const controller = new AbortController()
     const messages = await messagesForChatId(chat.id)
+    let attempts = 0
 
-    // const { buildPrompt } = await import('./prompts')
-    // const prompt = buildPrompt(ctx, messages)
+    const { buildPrompt, PROMPT_INST_SUFFIX } = await import('./prompts')
 
-    let token = process.env.TOGETHER_AI_API_TOKEN // yes just copied same token
-    if (IS_PROD && !token) {
-        token = await getParamStoreValue('together-ai-api-token')
-    }
-    if (!token) throw new Error("No token for fastchat/together.ai")
+
+    const prompt = buildPrompt(ctx, messages) + messages.slice(0, -2).map(messageForPrompt).join('\n\n') + PROMPT_INST_SUFFIX
+
+    console.log(ctx, prompt)
+
+    const token = await getConfigValue('together-ai-api-token')
 
     const saveAndStream = (msg: SavedMessageModel, isPending = true) => {
         Message.update(msg)
         ctx.onProgress({ msgId: message.id, content: message.content, isPending })
     }
-
-    let attempts = 0
-    const { buildPrompt } = await import('./prompts')
-
-    const prompt = buildPrompt(ctx, messages) +
-        'Your previous conversation is:\n\n' +
-        messages.slice(0, -1).map(messageForPrompt).join('\n\n') +
-        '\n\n' + PROMPT_TEXT_SUFFIX
-
-    console.log(ctx, prompt)
-
-    await fetchEventSource('https://luffy-chat.staging.kinetic.openstax.org/v1/chat/completions', {
+    const response = fetchEventSource('https://api.together.xyz/api/inference', {
         method: 'POST',
         headers: {
             Authorization: `Bearer ${token}`,
@@ -67,17 +55,18 @@ export const requestInference = async (
         },
         signal: controller.signal,
         body: JSON.stringify({
-            messages: prompt,
-            // model: 'nash-vicuna-13b-v1dot5-ep2-w-rag-w-simple',
-            model: 'nash-vicuna-33b-v1dot3-ep2-w-rag-w-simple',
-            max_tokens: 512,
+            prompt: ctx.message,
+            model: ctx.model,
+            prompt_format_string: prompt,
+            max_tokens: 768,
             temperature: 0.7,
             top_p: 0.7,
+            type: 'chat',
+            stop: ['</s>:', '[INST]'],
             top_k: 50,
             repetition_penalty: 1,
-            stream: true,
+            stream_tokens: true,
         }),
-        inputOnOpen() { return null },
         onmessage(chunk) {
             console.log(chat.id, chunk.data)
             if (chunk.data == '[DONE]') {
@@ -87,10 +76,8 @@ export const requestInference = async (
                 controller.abort()
                 throw new CompletedError()
             }
-            const msg = JSON.parse(chunk.data) as Chunk
-            const content = msg.choices[0].delta.content
-
-            if (!content) return
+            const msg = JSON.parse(chunk.data) as Choices
+            const content = msg.choices[0].text
 
             message.content += message.content.length ? content : content.trimStart()
 
@@ -120,22 +107,6 @@ export const requestInference = async (
         }
     })
 
-    // console.log(response.ok)
+    return response
 
-    // const json = await response.json() as Chunk
-    // let msg: string = json.choices[0].message.content
-    // try {
-    //      msg = (JSON.parse(json.choices[0]?.message?.content) as TutorBotReply).Tutorbot
-    // } catch(e) {
-    //     console.log(`CAUGHT, msg was:\n${json.choices[0]?.message?.content}`)
-    //     console.warn(e)
-    // }
-
-    // console.log(JSON.stringify(json))
-
-    // message.content = msg
-
-    // Message.update(message)
-    // ctx.onProgress({ msgId: message.id, content: message.content, isPending: false })
-    // ctx.onComplete()
 }

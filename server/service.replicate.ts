@@ -71,7 +71,6 @@ export const installWebhookHandler = async (app: Express, chatUpdates: ChatUpdat
     return app.post('/api/webhook/replicate/:chatId/:msgId', async (req, res) => {
         const { body, params: { chatId, msgId } } = req
 
-        /* const { Conversation } = await import('./conversation.js') */
         const chat = await Chat.get({ id: chatId })
 
         const msg = await Message.get({ id: msgId })

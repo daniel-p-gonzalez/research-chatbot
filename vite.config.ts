@@ -7,13 +7,13 @@ const config: UserConfig = {
         react(),
         ssr({
             prerender: true,
-            trailingSlash: false,
         }),
     ],
     resolve: {
         alias: {
             '#lib': '/lib',
             '#components': '/components',
+            '#server': '/server',
         }
     }
 }

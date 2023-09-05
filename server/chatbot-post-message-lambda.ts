@@ -1,7 +1,7 @@
 import { APIGatewayProxyEventV2 } from 'aws-lambda'
 import type {Writable}  from 'node:stream'
-import { addMessageToChat, chatTranscript } from '../lib/conversation.js'
-import { RequestContext } from '../lib/request-context.js'
+import { addMessageToChat, chatTranscript } from './conversation.js'
+import { RequestContext } from './request-context.js'
 import type { MessageSendContext } from '#lib/types'
 const { awslambda } = (global as any)
 

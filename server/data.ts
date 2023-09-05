@@ -3,7 +3,7 @@ import { Table } from 'dynamodb-onetable'
 import type { Entity } from 'dynamodb-onetable'
 import { DynamoDBClient, DynamoDBClientConfig } from '@aws-sdk/client-dynamodb'
 import { DynamoDBSchema } from './data/schema.js'
-import { IS_PROD } from './env'
+import { IS_PROD } from './config'
 
 let options: DynamoDBClientConfig = {
 

@@ -11,7 +11,8 @@
     "esModuleInterop": true,
     "paths": {
       "#lib/*": ["./lib/*"],
-      "#comonents/*": ["./comonents/*"]
+      "#components/*": ["./components/*"],
+      "#server/*": ["./server/*"]
     }
   },
   "ts-node": {

@@ -6,7 +6,7 @@ import {
 import { Rnd } from 'react-rnd'
 import { ChatMessageReply, WelcomeMessage, MessageJSON, DEFAULT_MODEL, CHATIDPARAM } from '#lib/types'
 import { pushNewSearchParam, searchParam } from '#lib/util'
-
+import { initialMessage } from '#lib/chat'
 import { sendMsgAndListen } from '#lib/send-and-listen'
 import { useState, useEffect } from 'react'
 import { Request } from '#lib/request'
@@ -141,7 +141,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ onClose, isOpen, topic, 
                         <ChatMessage model={{
                             position: 'single',
                             direction: 'incoming',
-                            message: `Hello, I’m TutorBot.  Would you like to know more about ${topic}? I can also answer any other questions about ${subject}`,
+                            message: initialMessage({ topic, subject }),
                             sentTime: "just now",
                             sender: 'TutorBot',
                         }} />

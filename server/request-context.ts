@@ -1,4 +1,4 @@
-import type { OnProgressCB, OnCompleteCB, MessageSendContext } from './types'
+import type { OnProgressCB, OnCompleteCB, MessageSendContext } from '#lib/types'
 
 
 export class RequestContext implements MessageSendContext {

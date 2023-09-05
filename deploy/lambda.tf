@@ -19,9 +19,6 @@ module "chat_message_lambda" {
   environment_variables      = local.lambda_env
   create_role                = false # to control creation of the IAM role and policies required for Lambda Function
   lambda_role                = aws_iam_role.chatbot_lambda.arn
-  # layers = [
-  #   "arn:aws:lambda:us-east-2:590474943231:layer:AWS-Parameters-and-Secrets-Lambda-Extension:10",
-  # ]
 
   source_path = [
     {

@@ -10,9 +10,8 @@ import { renderPage } from 'vite-plugin-ssr/server'
 import 'dotenv/config'
 import { root } from './root.js'
 import type { MessageSendContext } from '#lib/types'
-import { installWebhookHandler } from '../lib/service.js'
-import { RequestContext } from '../lib/request-context.js'
-const isProduction = process.env.NODE_ENV === 'production'
+import { installWebhookHandler } from './service.js'
+import { RequestContext } from './request-context.js'
 
 
 startServer()
@@ -23,7 +22,7 @@ async function startServer() {
     app.use(express.json())
     app.use(compression())
 
-    const { chatUpdates } = await import('../lib/chat-updates.js')
+    const { chatUpdates } = await import('./chat-updates.js')
 
     // Express is only used in dev, in prod lambda's are used
     // We instantiate Vite's development server and integrate its middleware to our server.
@@ -46,7 +45,7 @@ async function startServer() {
             "Content-Type": "text/event-stream",
         })
 
-        const { addMessageToChat, chatTranscript  } = await vite.ssrLoadModule('#lib/conversation.ts')
+        const { addMessageToChat, chatTranscript  } = await vite.ssrLoadModule('#server/conversation.ts', { fixStacktrace: true })
 
         const chat = await addMessageToChat(new RequestContext(
             (updated) => {
@@ -70,7 +69,8 @@ async function startServer() {
 
     app.post('/api/chat/fetch-messages', async (req, res) => {
         const { chatId } = req.body
-        const { findChat, chatTranscript } = await vite.ssrLoadModule('#lib/conversation.ts')
+        const { findChat, chatTranscript } = await vite.ssrLoadModule('#server/conversation.ts', { fixStacktrace: true })
+
         try {
             const chat = await findChat(chatId)
             res.json({
@@ -82,60 +82,9 @@ async function startServer() {
         }
     })
 
-    // app.get("/api/stream/:chatId", (req, res) => {
-    //     const { chatId } = req.params
-    //     res.writeHead(200, {
-    //         "Connection": "keep-alive",
-    //         "Cache-Control": "no-cache",
-    //         "Content-Type": "text/event-stream",
-    //     })
-
-    //     const interval = setInterval(() => {
-    //         const updates = chatUpdates.updates(chatId)
-    //         if (updates.length) {
-    //             for (const update of updates) {
-    //                 res.write('data: ' + JSON.stringify(update) + '\n\n');
-    //             }
-    //             res.flush()
-    //             chatUpdates.clearUpdates(chatId) // n.b. this will clear for ALL clients, but I think that's ok since chat's are one per user
-    //         }
-    //     }, 1000)
-
-    //     res.on("close", () => {
-    //         clearInterval(interval);
-    //         res.end();
-    //     })
-    // })
-
     installWebhookHandler(app, chatUpdates)
 
-    // app.post('/api/webhook/replicate/:chatId/:msgId', async (req, res) => {
-    //     const { body, params: { chatId, msgId } } = req
 
-    //     const { Conversation } = await import('../lib/conversation.js')
-    //     const chat = Conversation.get(chatId)
-    //     const msg = chat?.getBotMessage(msgId)
-    //     if (msg) {
-    //         const { fetchPrediction } = await import('../lib/service.replicate.js')
-    //         const prediction = await fetchPrediction(body.id)
-
-    //         console.log({ body, prediction })
-
-    //         msg.message = prediction.output?.join(' ') || ''
-    //         msg.isPending = prediction.status != 'succeeded'
-
-    //         sseUpdates.push(chatId, msg.contentForUpdate)
-
-    //     } else {
-    //         console.warn(`Recieved webhook for non-existing ${!!chat ? 'message' : 'chat'} ${chatId} : ${msgId} ${!!chat}`)
-    //     }
-    //     res.status(200).send('ok')
-    // })
-    // ...
-    // Other middlewares (e.g. some RPC middleware such as Telefunc)
-    // ...
-    // Vite-plugin-ssr middleware. It should always be our last middleware (because it's a
-    // catch-all middleware superseding any middleware placed after it).
     app.get('*', async (req, res, next) => {
         const pageContextInit = {
             urlOriginal: req.originalUrl

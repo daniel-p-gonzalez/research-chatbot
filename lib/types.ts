@@ -21,6 +21,25 @@ export const WelcomeMessage = 'Hello, I’m TutorBot. How can I help you?'
 //     messages: Record<string, Message>
 // }
 
+export interface User {
+    id: number;
+    name: string;
+    first_name: string;
+    last_name: string;
+    full_name: string;
+    uuid: string;
+    faculty_status: string;
+    is_administrator: boolean;
+    is_not_gdpr_location: boolean;
+    contact_infos: Array<{
+        type: string;
+        value: string;
+        is_verified: boolean;
+        is_guessed_preferred: boolean;
+    }>;
+}
+
+
 export type SSChatUpdate = {
     msgId: string
     isPending: boolean

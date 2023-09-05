@@ -2,7 +2,7 @@ import { Handler } from 'aws-lambda';
 
 export const handler: Handler = async (event) => {
     const { chatId } = JSON.parse(event.body)
-    const { findChat, chatTranscript } = await import('../lib/conversation.js')
+    const { findChat, chatTranscript } = await import('./conversation.js')
     try {
         const chat = await findChat(chatId)
 

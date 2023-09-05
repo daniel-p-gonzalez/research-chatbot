@@ -1,4 +1,4 @@
-import { SSChatUpdate } from './types.js'
+import { SSChatUpdate } from '#lib/types.js'
 import type { MessageModel } from './data.js'
 
 export class ChatUpdatesQueue {
