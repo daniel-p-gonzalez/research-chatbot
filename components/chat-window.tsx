@@ -4,7 +4,7 @@ import {
     MainContainer, ChatContainer, MessageList, Message as ChatMessage, MessageInput,
 } from '@chatscope/chat-ui-kit-react';
 import { Rnd } from 'react-rnd'
-import { ChatMessageReply, WelcomeMessage, MessageJSON, DEFAULT_MODEL, CHATIDPARAM } from '#lib/types'
+import { ChatMessageReply, MessageJSON, DEFAULT_MODEL, CHATIDPARAM } from '#lib/types'
 import { pushNewSearchParam, searchParam } from '#lib/util'
 import { initialMessage } from '#lib/chat'
 import { sendMsgAndListen } from '#lib/send-and-listen'
