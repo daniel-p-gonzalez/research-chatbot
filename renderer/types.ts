@@ -16,18 +16,20 @@ import type {
 
 type Page = (pageProps: PageProps) => React.ReactElement
 type PageProps = Record<string, unknown>
+export type Layout = (props: { children: React.ReactNode }) => React.ReactElement
 
 export type PageContextCustom = {
-  Page: Page
-  pageProps?: PageProps
-  urlPathname: string
-  routeParams: Record<string, string>
-  exports: {
-    documentProps?: {
-      title?: string
-      description?: string
+    Page: Page
+    pageProps?: PageProps
+    urlPathname: string
+    routeParams: Record<string, string>
+    exports: {
+        Layout: Layout
+        documentProps?: {
+            title?: string
+            description?: string
+        }
     }
-  }
 }
 
 type PageContextServer = PageContextBuiltIn<Page> & PageContextCustom

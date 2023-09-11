@@ -4,18 +4,18 @@ import {
     MainContainer, ChatContainer, MessageList, Message as ChatMessage, MessageInput,
 } from '@chatscope/chat-ui-kit-react';
 import { Rnd } from 'react-rnd'
-import { ChatMessageReply, MessageJSON, DEFAULT_MODEL, CHATIDPARAM } from '#lib/types'
+import { ChatMessageReply, TranscriptMessage, DEFAULT_MODEL, CHATIDPARAM } from '#lib/types'
 import { pushNewSearchParam, searchParam } from '#lib/util'
 import { initialMessage } from '#lib/chat'
 import { sendMsgAndListen } from '#lib/send-and-listen'
 import { useState, useEffect } from 'react'
 import { Request } from '#lib/request'
 import { Box } from 'boxible'
-import { CloseButton, Button, Select } from '@mantine/core';
-import { useLocalstorageState, useEventListener } from '@nathanstitt/sundry/base';
+import { CloseButton, Select } from '@mantine/core';
+import { useLocalstorageState } from '@nathanstitt/sundry/base';
 
 
-function makeMessage({ isFirst, isLast, message }: { index: number, isFirst: boolean, isLast: boolean, message: MessageJSON }) {
+function makeMessage({ isFirst, isLast, message }: { index: number, isFirst: boolean, isLast: boolean, message: TranscriptMessage }) {
 
     return (
         <ChatMessage key={message.id} model={{
@@ -82,7 +82,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ onClose, isOpen, topic, 
 
     const onSend = (_:string, message: string) => {
         const cc = { ...chat, transcript: [...chat.transcript] }; // create a local copy and use that, otherwise methods below will act on stale state
-        cc.transcript.push({ id: 'temp', content: message, isBot: false }, { id: 'temp-reply', content: '', isBot: true })
+        cc.transcript.push({ id: 'temp', content: message, isBot: false, occured: '' }, { id: 'temp-reply', content: '', isBot: true, occured: '' })
         setChat(cc)
         sendMsgAndListen({ chatId: cc.id, message, model, topic, subject }, {
             initial: (newChat) => {

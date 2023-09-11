@@ -1,8 +1,8 @@
-export type MessageJSON = {
+ export type TranscriptMessage = {
     id: string
     content: string
     isBot: boolean
-    isPending?: boolean
+    occured: string
 }
 
 
@@ -31,15 +31,24 @@ export type SSChatUpdate = {
     content: string,
 }
 
-export type ChatMessageReply = {
+export type ChatWithTranscript = {
     id: string,
-    transcript: MessageJSON[],
+    transcript: TranscriptMessage[]
+}
+
+export type ChatMessageReply = ChatWithTranscript & {
     error?: string
 }
 
 export type  OnProgressCB = (msg: SSChatUpdate) => void
 
 export type OnCompleteCB =  (errorMessage?: string) => void
+
+export type ChatWithFirstMessage = {
+    id: string,
+    occured: string
+    message: string
+}
 
 
 export type MessageSendContext = {

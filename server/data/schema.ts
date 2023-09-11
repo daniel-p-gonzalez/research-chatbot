@@ -8,8 +8,8 @@ export const DynamoDBSchema = {
     models: {
         Chat: {
             pk: { type: String, value: 'ct:${id}' },
-            sk: { type: String, value: 'status' },
-
+            sk: { type: String, value: 'created' },
+            created: { type: Date, readonly: true },
             id: { type: String, generate: 'ulid', readonly: true},
         },
 

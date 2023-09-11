@@ -8,7 +8,7 @@ import { escapeInject, dangerouslySkipEscape } from 'vite-plugin-ssr/server'
 import logoUrl from './logo.svg'
 import type { PageContextServer } from './types'
 import createEmotionServer from "@emotion/server/create-instance";
-import { CacheProvider } from "@emotion/react";
+
 import createCache from '@emotion/cache';
 
 const key = 'css'

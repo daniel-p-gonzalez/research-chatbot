@@ -67,6 +67,11 @@ async function startServer() {
         }) + '\n\n');
     })
 
+    app.get('/api/admin/chats', async (req, res) => {
+        const { chatsBetweenDates } = await vite.ssrLoadModule('#server/conversation.ts', { fixStacktrace: true })
+        res.json({ chats: await chatsBetweenDates(req.query.start, req.query.end) })
+    })
+
     app.post('/api/chat/fetch-messages', async (req, res) => {
         const { chatId } = req.body
         const { findChat, chatTranscript } = await vite.ssrLoadModule('#server/conversation.ts', { fixStacktrace: true })
@@ -78,6 +83,7 @@ async function startServer() {
                 transcript: await chatTranscript(chat)
             })
         } catch (e) {
+            console.log(e)
             res.status(404).send('Not found')
         }
     })

@@ -41,3 +41,7 @@ tell me about ppf
 https://chat.kinetic.sandbox.openstax.org/chat#01H91366XJV5Z39A3VN8RTD2F4
 https://chat.kinetic.sandbox.openstax.org/chat#01H9137ZG52TXWEMZE1742PGQD
 https://chat.kinetic.sandbox.openstax.org/chat#01H9139N77WCZEPB8SCA3YT1H6
+
+
+eval chat:
+https://chat.kinetic.sandbox.openstax.org/section/27-1-defining-money-by-its-functions?chatId=01H9R6E3RCTMPXZV82K83P0Y7C

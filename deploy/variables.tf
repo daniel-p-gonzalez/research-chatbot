@@ -10,6 +10,3 @@ variable "sub_domain_name" {
 }
 
 variable "base_domain_name" {}
-variable "sso_cookie_name" {}
-variable "sso_cookie_private_key" {}
-variable "sso_cookie_public_key" {}

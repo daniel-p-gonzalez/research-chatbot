@@ -3,6 +3,10 @@ export function isBrowser() {
     return typeof window !== 'undefined' && typeof window.scrollY === 'number'
 }
 
+export const parseDate = (dt?: string) => {
+    if (!dt) return new Date
+    return new Date(Date.parse(dt))
+}
 
 export function searchParam(key: string): string | null {
     if (!isBrowser()) {

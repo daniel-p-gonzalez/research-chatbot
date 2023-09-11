@@ -3,8 +3,9 @@ import type { PropsWithChildren } from 'react'
 
 export { Chat } from './chat'
 
-export const PageWrapper = styled.div({
+export const PageWrapper = styled.main({
     padding: 10,
+    minHeight: '100vh',
     gridArea: 'main',
     overflow: 'auto',
 })

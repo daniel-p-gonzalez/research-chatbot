@@ -18,6 +18,7 @@ if (!IS_PROD) {
 }
 
 export const DynamoClient = new Dynamo({
+    log: !IS_PROD,
     client: new DynamoDBClient({
         ...options,
     }),
@@ -26,6 +27,11 @@ export const DynamoClient = new Dynamo({
 export const DATA_TABLE_NAME = process.env.DYNAMO_DATA_TABLE || 'TutorChatBot'
 
 const DataTable = new Table({
+    // logger: (level, message, context) => {
+    //     if (level == 'trace' || level == 'data') return
+    //     console.log(`${new Date().toLocaleString()}: ${level}: ${message}`)
+    //     console.log(JSON.stringify(context, null, 4) + '\n')
+    // },
     client: DynamoClient,
     name: DATA_TABLE_NAME,
     schema: DynamoDBSchema,
@@ -49,8 +55,15 @@ export type MessageModel = Entity<typeof DynamoDBSchema.models.Message>
 export type SavedMessageModel = MessageModel & { id: string }
 export const Message = DataTable.getModel('Message')
 
-const createdAtCompare = (a: MessageModel, b: MessageModel) => ((a.created == b.created) ? 0 : ((a.created! > b.created!)? 1: -1));
+type ModelWithCreated = {
+    created?: Date
+}
+
+export const createdAtCompare = (a: ModelWithCreated, b: ModelWithCreated) => ((a.created == b.created) ? 0 : ((a.created! > b.created!)? 1: -1));
+
 export async function messagesForChatId(chatId: string) {
     return (await Message.find({ chatId }, { index: 'gs1' })).sort(createdAtCompare)
 }
+
+
 //export type MessageModel = Entity<typeof DynamoDBSchema.models.Chat>['messages'][number]

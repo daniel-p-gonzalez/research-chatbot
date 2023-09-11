@@ -1,7 +1,8 @@
 import { requestInference } from './service'
-import { Chat, Message, messagesForChatId } from './data'
+import { Chat, Message, createdAtCompare, messagesForChatId } from './data'
 import type { SavedChatModel, MessageModel, SavedMessageModel } from './data'
-import type { MessageJSON } from '#lib/types'
+import type { TranscriptMessage, ChatWithFirstMessage } from '#lib/types'
+import { parseDate } from '#lib/util'
 import { RequestContext } from './request-context'
 
 
@@ -19,14 +20,16 @@ export async function addMessageToChat(ctx: RequestContext)  {
     return c
 }
 
-export function messageForTranscript(msg: MessageModel): MessageJSON {
+export function messageForTranscript(msg: MessageModel): TranscriptMessage {
     return {
-        id: msg.id || '', content: msg.content, isBot: !!msg.isBot, isPending: (msg.isBot && !msg.content),
+        id: msg.id || '', content: msg.content, isBot: !!msg.isBot,
+        occured: msg.created?.toISOString() || '',
     }
 }
 
 export async function findChat(chatId: string ) {
     const chat = await Chat.get({ id: chatId })
+    console.log({ chatId, chat })
     if (chat?.id) return chat as SavedChatModel
 
     throw new Error(`Conversation for ${chatId} was not found`)
@@ -35,4 +38,35 @@ export async function findChat(chatId: string ) {
 export async function chatTranscript(chat: SavedChatModel) {
     const messages = await messagesForChatId(chat.id)
     return messages.map(messageForTranscript)
+}
+
+export async function findChats(chat: SavedChatModel) {
+    const messages = await messagesForChatId(chat.id)
+    return messages.map(messageForTranscript)
+}
+
+export async function chatsBetweenDates(st?: string, ed?: string) {
+    const start = parseDate(st), end = parseDate(ed);
+    let next: any = null
+    const chats: ChatWithFirstMessage[] = []
+    console.log( start, end )
+    do {
+        const allChats = await Chat.scan({}, { fields: ['id', 'created'] })
+        for (const chat of allChats) {
+            if (chat.created && chat.created >= start && chat.created <= end) {
+                const c: SavedChatModel = chat as any
+                const msgs = await Message.find({ chatId: c.id }, { index: 'gs1', fields: ['content', 'created'] })
+                msgs.sort(createdAtCompare)
+                chats.push({
+                    id: c.id,
+                    occured: c.created?.toISOString() || '',
+                    message: msgs[0]?.content || '',
+                })
+            }
+        }
+        next = allChats.next
+    } while (next)
+//    chats.sort(createdAtCompare)
+    return chats
+
 }

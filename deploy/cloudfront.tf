@@ -1,7 +1,10 @@
 locals {
   assets_path         = "${path.module}/assets"
   assets_s3_origin_id = "KineticChatOrigin"
+
 }
+
+
 
 variable "mime_types" {
   default = {
@@ -14,6 +17,11 @@ variable "mime_types" {
     ".json" = "application/json"
   }
 }
+
+data "aws_lambda_function" "sso_cookie_decoder" {
+  function_name = "sso-cookie-decoder"
+}
+
 
 resource "aws_s3_bucket" "chatbot_assets" {
   bucket = "kinetic${local.env_dash}-chatbot-assets"
@@ -31,6 +39,7 @@ resource "null_resource" "chatbot_assets" {
     command = "s5cmd sync --size-only ${path.module}/../dist/client/ s3://${aws_s3_bucket.chatbot_assets.id}/" # echo ${self.private_ip} >> private_ips.txt"
   }
 }
+
 
 # resource "aws_s3_object" "chatbot_assets" {
 #   for_each     = fileset("${path.module}/../dist/client", "**/*")
@@ -102,6 +111,7 @@ resource "aws_cloudfront_distribution" "chatbot" {
     }
   }
 
+
   origin {
     domain_name = replace(module.fetch_chat_messages_lambda.lambda_function_url, "/^https?://([^/]*).*/", "$1")
     origin_id   = module.fetch_chat_messages_lambda.lambda_function_url_id
@@ -120,6 +130,21 @@ resource "aws_cloudfront_distribution" "chatbot" {
   origin {
     domain_name = replace(module.chat_message_lambda.lambda_function_url, "/^https?://([^/]*).*/", "$1")
     origin_id   = module.chat_message_lambda.lambda_function_url_id
+    custom_origin_config {
+      http_port                = 80
+      https_port               = 443
+      origin_keepalive_timeout = 5
+      origin_protocol_policy   = "https-only"
+      origin_read_timeout      = 30
+      origin_ssl_protocols = [
+        "TLSv1.2",
+      ]
+    }
+  }
+
+  origin {
+    domain_name = replace(module.admin_lambda.lambda_function_url, "/^https?://([^/]*).*/", "$1")
+    origin_id   = module.admin_lambda.lambda_function_url_id
     custom_origin_config {
       http_port                = 80
       https_port               = 443
@@ -152,6 +177,38 @@ resource "aws_cloudfront_distribution" "chatbot" {
     #  "658327ea-f89d-4fab-a63d-7e88639e58f6" # Managed-CachingOptimized
 
     viewer_protocol_policy = "redirect-to-https"
+
+  }
+
+  ordered_cache_behavior {
+    path_pattern     = "/api/admin/chats"
+    allowed_methods  = ["HEAD", "DELETE", "POST", "GET", "OPTIONS", "PUT", "PATCH"]
+    cached_methods   = ["GET", "HEAD"]
+    target_origin_id = module.admin_lambda.lambda_function_url_id
+
+    compress               = true
+    default_ttl            = 0
+    max_ttl                = 0
+    min_ttl                = 0
+    viewer_protocol_policy = "redirect-to-https"
+
+    # lambda_function_association {
+    #   event_type = "origin-request"
+    #   lambda_arn = data.aws_lambda_function.sso_cookie_decoder.qualified_arn
+    # }
+
+    forwarded_values {
+      headers = [
+        "Origin",
+      ]
+      query_string            = true
+      query_string_cache_keys = ["start", "end"]
+
+      cookies {
+        forward           = "all"
+        whitelisted_names = []
+      }
+    }
   }
 
   ordered_cache_behavior {

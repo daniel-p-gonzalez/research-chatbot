@@ -41,6 +41,7 @@ resource "aws_iam_role_policy" "chatbot_lambda" {
         Resource = aws_dynamodb_table.chatbot.arn,
         Action = [
           "dynamodb:GetItem",
+          "dynamodb:Scan",
           "dynamodb:Query",
           "dynamodb:BatchWriteItem",
           "dynamodb:PutItem",
