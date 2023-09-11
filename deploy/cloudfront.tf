@@ -202,7 +202,7 @@ resource "aws_cloudfront_distribution" "chatbot" {
         "Origin",
       ]
       query_string            = true
-      query_string_cache_keys = ["start", "end"]
+      query_string_cache_keys = ["end", "start"]
 
       cookies {
         forward           = "all"

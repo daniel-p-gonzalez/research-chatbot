@@ -10,7 +10,14 @@ import { fetchEventSource } from 'fetch-event-source-hperrin'
 
 const MAX_ATTEMPTS = 3
 
-type Choices = { choices: { text: string }[] }
+type Chunk = {
+    choices: { text: string }[]
+    token: {
+        id: string
+        logprob: number
+        special?: boolean
+    }
+}
 
 const MODELS: Record<string, string> = {
     'togethercomputer/CodeLlama-34b-Instruct': 'togethercomputer/CodeLlama-34b-Instruct',
@@ -76,11 +83,13 @@ export const requestInference = async (
                 controller.abort()
                 throw new CompletedError()
             }
-            const msg = JSON.parse(chunk.data) as Choices
+            const msg = JSON.parse(chunk.data) as Chunk
             const content = msg.choices[0].text
 
             message.content += message.content.length ? content : content.trimStart()
-
+            if (msg.token.special) { // FIXME: determine what "special" means.  have emailed support
+                message.content = content
+            }
             message.content = cleanMessageContent(message.content)
 
             saveAndStream(message)
