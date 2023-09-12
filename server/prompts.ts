@@ -41,6 +41,8 @@ Your reply should be concise and no longer 8 sentences.
 Work collaboratively with the student, assisting the student to solve each subproblem.  Critically examine the students
 statements for accuracy and if the student is incorrect explain why.
 
+If it is unclear what the student is requesting, tell them more about __TOPIC__
+
 `
 
 export const PROMPT_TEXT_SUFFIX = `

@@ -2,7 +2,7 @@ import { Box } from 'boxible'
 import styled from '@emotion/styled'
 import dayjs from 'dayjs'
 import { Link } from '#components/link'
-import { QueryError } from '#components/query-error'
+import { QueryError } from '#components/misc'
 import { Text, NavLink } from '@mantine/core';
 import { DatePickerInput, DateValue } from '@mantine/dates';
 import { useState } from 'react'
@@ -65,7 +65,7 @@ type ChatsReply = { chats: ChatWithFirstMessage[] }
 const Chat: React.FC<{ chat: ChatWithFirstMessage }> = ({ chat }) => {
     return (
         <NavLink label={(
-            <ChatLink href={`/admin/chats?chatId=${chat.id}`}>
+            <ChatLink href={`/admin/chats/?chatId=${chat.id}`}>
                 <span>{chat.message}</span>
                 <Text fz="sm">{dayjs(chat.occured).format('MMM D, YYYY h:mma')}</Text>
             </ChatLink>

@@ -34,6 +34,7 @@ export type SSChatUpdate = {
 
 export type ChatWithTranscript = {
     id: string,
+    model?: string
     transcript: TranscriptMessage[]
 }
 
@@ -57,7 +58,6 @@ export type MessageSendContext = {
     message: string
     topic: string
     subject: string
-    model?: string
 }
 
 export const DEFAULT_MODEL = 'self-hosted'

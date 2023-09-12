@@ -8,13 +8,13 @@ import { RequestContext } from './request-context'
 
 export async function addMessageToChat(ctx: RequestContext)  {
 
-    const chat = await( ctx.chatId ? Chat.get({ id: ctx.chatId }) : Chat.create({ }) )
+    const chat = await( ctx.chatId ? Chat.get({ id: ctx.chatId }) : Chat.create({ model: ctx.model  }) )
 
     if (!chat?.id) throw new Error(`Conversation for ${ctx.chatId} was not found`)
     const c = chat as SavedChatModel
 
     await Message.create({ chatId: c.id, content: ctx.message })
-    const botMsg = await Message.create({ chatId: c.id, content: '', isBot: true, model: ctx.model })  as SavedMessageModel
+    const botMsg = await Message.create({ chatId: c.id, content: '', isBot: true})  as SavedMessageModel
 
     requestInference(c, botMsg, ctx)
     return c
@@ -29,10 +29,9 @@ export function messageForTranscript(msg: MessageModel): TranscriptMessage {
 
 export async function findChat(chatId: string ) {
     const chat = await Chat.get({ id: chatId })
-    console.log({ chatId, chat })
-    if (chat?.id) return chat as SavedChatModel
+    if (!chat?.id) throw new Error(`Conversation for ${chatId} was not found`)
 
-    throw new Error(`Conversation for ${chatId} was not found`)
+    return chat as SavedChatModel
 }
 
 export async function chatTranscript(chat: SavedChatModel) {
@@ -49,7 +48,7 @@ export async function chatsBetweenDates(st?: string, ed?: string) {
     const start = parseDate(st), end = parseDate(ed);
     let next: any = null
     const chats: ChatWithFirstMessage[] = []
-    console.log( start, end )
+
     do {
         const allChats = await Chat.scan({}, { fields: ['id', 'created'] })
         for (const chat of allChats) {

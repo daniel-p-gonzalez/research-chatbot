@@ -8,10 +8,12 @@ export const parseDate = (dt?: string) => {
     return new Date(Date.parse(dt))
 }
 
+
 export function searchParam(key: string): string | null {
     if (!isBrowser()) {
-        return ''
+        return null
     }
+
     const params = new URLSearchParams(window.location.search)
     return params.get(key)
 }

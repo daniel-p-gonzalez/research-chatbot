@@ -9,7 +9,7 @@ export const handler: Handler = async (event) => {
         return {
             statusCode: 200,
             body: JSON.stringify({
-                id: chat.id,
+                ...chat,
                 transcript: await chatTranscript(chat)
             })
         }

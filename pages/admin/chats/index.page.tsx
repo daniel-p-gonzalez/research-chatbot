@@ -7,7 +7,8 @@ import { searchParam } from '#lib/util'
 import { Box } from 'boxible'
 import { Message } from '@chatscope/chat-ui-kit-react'
 import dayjs from 'dayjs'
-
+import { Loading } from '#components/misc'
+import { ClientOnly } from '#components/client-only'
 
 const ChatReview: React.FC<{chatId: string}> = ({ chatId }) => {
 
@@ -17,11 +18,14 @@ const ChatReview: React.FC<{chatId: string}> = ({ chatId }) => {
         })
     } })
 
+    if (query.isLoading) return <Loading />
+    const chat = query.data || { model: null }
     const msgs = query.data?.transcript || []
     const firstMsg = msgs[0] || { }
+
     return (
         <Box margin="lg" direction="column">
-            <h3>{dayjs(firstMsg.occured).format('MMM D, YYYY h:mma')} Model: { firstMsg.model || 'unknown'}</h3>
+            <h3>{dayjs(firstMsg.occured).format('MMM D, YYYY h:mma')} Model: { chat.model || 'unknown'}</h3>
             <LoadingOverlay visible={query.isLoading} overlayBlur={2} />
             {msgs.map(message => (
                 <Message
@@ -42,13 +46,9 @@ const ChatReview: React.FC<{chatId: string}> = ({ chatId }) => {
 
 export const Page = () => {
     const chatId = searchParam('chatId')
-    if (chatId) {
-        return <ChatReview chatId={chatId} />
-    }
     return (
-        <>
-            <h1>Select chat from left</h1>
-        </>
+        <ClientOnly>
+            {chatId ? <ChatReview chatId={chatId} /> : <h1>Select chat from left</h1>}
+        </ClientOnly>
     )
-
 }

@@ -79,7 +79,7 @@ async function startServer() {
         try {
             const chat = await findChat(chatId)
             res.json({
-                id: chat.id,
+                ...chat,
                 transcript: await chatTranscript(chat)
             })
         } catch (e) {

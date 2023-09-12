@@ -11,6 +11,7 @@ export const DynamoDBSchema = {
             sk: { type: String, value: 'created' },
             created: { type: Date, readonly: true },
             id: { type: String, generate: 'ulid', readonly: true},
+            model: { type: String },
         },
 
         Message: {
@@ -22,7 +23,6 @@ export const DynamoDBSchema = {
             created: { type: Date, readonly: true },
             chatId: { type: String, required: true, readonly: true, reference: 'Chat:primary:id=id',},
             content: { type: String, required: true },
-            model: { type: String },
             isBot: { type: 'boolean', map: 'bot', default: false },
         },
 

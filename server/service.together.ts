@@ -69,7 +69,7 @@ export const requestInference = async (
             temperature: 0.7,
             top_p: 0.7,
             type: 'chat',
-            stop: ['</s>:', '[INST]'],
+            stop: ['</s>:', '[INST'],
             top_k: 50,
             repetition_penalty: 1,
             stream_tokens: true,
@@ -86,9 +86,10 @@ export const requestInference = async (
             const msg = JSON.parse(chunk.data) as Chunk
             const content = msg.choices[0].text
 
-            message.content += message.content.length ? content : content.trimStart()
             if (msg.token.special) { // FIXME: determine what "special" means.  have emailed support
                 message.content = content
+            } else {
+                message.content += message.content.length ? content : content.trimStart()
             }
             message.content = cleanMessageContent(message.content)
 
