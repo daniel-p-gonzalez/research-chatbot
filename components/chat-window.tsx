@@ -126,7 +126,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ onClose, isOpen, topic, 
                     onChange={(m) => m && setModel(m)}
                     data={[ { label: 'llama2-70B', value: 'togethercomputer/llama-2-70b-chat' },
                             { label: 'llama2-13B', value: 'togethercomputer/llama-2-13b-chat'},
-                            { label: 'SelfHosted (33B)', value: 'quiz' }]}
+                            { label: 'SelfHosted (33B)', value: 'self-hosted' }]}
                     placeholder="LLM Model"
                     label={false}
 

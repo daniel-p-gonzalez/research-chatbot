@@ -14,7 +14,7 @@ export async function addMessageToChat(ctx: RequestContext)  {
     const c = chat as SavedChatModel
 
     await Message.create({ chatId: c.id, content: ctx.message })
-    const botMsg = await Message.create({ chatId: c.id, content: '', isBot: true })  as SavedMessageModel
+    const botMsg = await Message.create({ chatId: c.id, content: '', isBot: true, model: ctx.model })  as SavedMessageModel
 
     requestInference(c, botMsg, ctx)
     return c

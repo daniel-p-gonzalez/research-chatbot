@@ -2,6 +2,7 @@
     id: string
     content: string
     isBot: boolean
+    model?: string
     occured: string
 }
 
@@ -59,6 +60,6 @@ export type MessageSendContext = {
     model?: string
 }
 
-export const DEFAULT_MODEL = 'quiz'
+export const DEFAULT_MODEL = 'self-hosted'
 
 export const CHATIDPARAM = 'chatId'

@@ -65,7 +65,7 @@ type ChatsReply = { chats: ChatWithFirstMessage[] }
 const Chat: React.FC<{ chat: ChatWithFirstMessage }> = ({ chat }) => {
     return (
         <NavLink label={(
-            <ChatLink href={`/admin/chats/${chat.id}`}>
+            <ChatLink href={`/admin/chats?chatId=${chat.id}`}>
                 <span>{chat.message}</span>
                 <Text fz="sm">{dayjs(chat.occured).format('MMM D, YYYY h:mma')}</Text>
             </ChatLink>
