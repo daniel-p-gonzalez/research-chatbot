@@ -1,4 +1,5 @@
 import '@chatscope/chat-ui-kit-styles/dist/default/styles.min.css';
+import { createPortal } from 'react-dom'
 import styled from '@emotion/styled'
 import {
     MainContainer, ChatContainer, MessageList, Message as ChatMessage, MessageInput,
@@ -102,12 +103,12 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ onClose, isOpen, topic, 
         })
     }
 
-    return (
+    return createPortal((
         <Rnd default={{
-            x: -250,
-            y: -350,
+            x: window.innerWidth-470,
+            y: 20,
             width: 450,
-            height: 600,
+            height: window.innerHeight-40,
         }}
         minWidth="350px"
         minHeight="450px"
@@ -159,7 +160,6 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ onClose, isOpen, topic, 
             </MainContainer>
         </Wrapper>
     </Rnd>
-    )
+    ), document.body)
+
 }
-
-
