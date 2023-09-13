@@ -57,6 +57,7 @@ export type MessageSendContext = {
     chatId:string
     message: string
     topic: string
+    model: string
     subject: string
 }
 
