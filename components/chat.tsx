@@ -4,6 +4,7 @@ import { ChatWindow } from './chat-window';
 import { useToggle } from '@nathanstitt/sundry/base'
 import { CHATIDPARAM } from '#lib/types'
 import { LaunchIcon } from './launch-icon';
+import { FC } from "react";
 
 const Wrapper = styled.div({
     float: 'right',
@@ -19,7 +20,7 @@ type ChatProps = {
     subject: string
 }
 
-export const Chat: React.FC<ChatProps> = (chatProps) => {
+export const Chat: FC<ChatProps> = (chatProps) => {
     const chatId = searchParam(CHATIDPARAM)
     const { setEnabled, setDisabled, isEnabled } = useToggle(!!chatId)
 
