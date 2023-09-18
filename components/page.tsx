@@ -10,6 +10,10 @@ export const PageWrapper = styled.main({
     overflow: 'auto',
 })
 
-export const PageContent:React.FC<PropsWithChildren> = ({ children }) => {
-    return <PageWrapper className="page">{children}</PageWrapper>
+export const PageContent: React.FC<PropsWithChildren> = ({ children }) => {
+    return (
+        <PageWrapper className="page">
+            {children}
+        </PageWrapper>
+    )
 }

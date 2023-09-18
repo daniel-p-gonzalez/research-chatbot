@@ -3,3 +3,4 @@ node_modules/
 dist/
 **/.terraform/*
 deploy/builds/
+.parcel-cache

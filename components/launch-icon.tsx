@@ -3,7 +3,7 @@ import { css, keyframes } from '@emotion/react'
 
 
 const Icon = styled.div({
-    width: '100%',
+    maxWidth: '150px',
     cursor: 'pointer',
 })
 
