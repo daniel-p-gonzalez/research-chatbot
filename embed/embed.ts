@@ -226,10 +226,12 @@ class Embed {
 
 }
 
+
 // TODO: also handle history pop/push events
 function whenDomReady(fn: () => void): void {
     if (document.readyState === 'complete' || document.readyState === 'interactive') {
         setTimeout(fn, 1)
+
     } else {
         document.addEventListener('DOMContentLoaded', fn)
     }
@@ -237,4 +239,7 @@ function whenDomReady(fn: () => void): void {
 
 whenDomReady(() => setTimeout(() => {
     openNewFrame(Config)
+    window.addEventListener('popstate', function (event) {
+        console.log('Location changed!', event.state);
+    });
 }, 200))

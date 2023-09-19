@@ -27,8 +27,6 @@ export type FrameOptions = {
 export type ParentApi = {
     openNewFrame(opts: FrameOptions): void
     onClose(): void
-    // onDragStart(): void
-    // onDragEnd(): void
 }
 
 export type BookContext = {

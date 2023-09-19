@@ -1,5 +1,5 @@
 import { MessageModel } from "./data"
-import { MessageSendContext } from "#lib/types"
+import { InferenceMessage, MessageSendContext } from "#lib/types"
 import { initialMessage } from "#lib/chat"
 
 const QUIZ_PROMPT = `
@@ -54,11 +54,10 @@ export const PROMPT_INST_SUFFIX = `[INST]  {prompt}
 `
 
 
-export const buildPrompt = (ctx: MessageSendContext,  transcript: MessageModel[]) => {
+export const buildPrompt = (ctx: MessageSendContext,  transcript: InferenceMessage[]) => {
     // remove any bot messages that don't yet have content, ie. where just created
     const prefix =  PROMPT.replaceAll('__SUBJECT__', ctx.subject)
         .replaceAll('__TOPIC__', ctx.topic)
-
 
     if (transcript.length === 2) {
         return prefix + INITIAL

@@ -10,7 +10,7 @@ export class RequestContext implements MessageSendContext {
     readonly topic!: string
     readonly chatId!: string
     readonly message!: string
-    readonly model?: string
+    readonly model: string
 
     constructor(onProgress: OnProgressCB, onComplete: OnCompleteCB, ctx: MessageSendContext) {
         this.onProgress = onProgress
