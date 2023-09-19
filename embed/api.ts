@@ -9,13 +9,13 @@ export type Size = {
     height?: string
 }
 
-
+// options used to implement a frame
 export type FrameOptions = {
     embedLocation: string
     name: string
     srcURL: string
     fitContent?: boolean
-    float?: 'left' | 'right' | false
+    float?: 'right' | false // TODO: implement left
     isResizable?: boolean
     isDraggable?: boolean
     dragGrabArea?: Size
@@ -35,7 +35,7 @@ export type BookContext = {
     subject: string
 }
 
-
+// These methods implemented on the content inside the frame
 export type ChildApi = {
     // is called as soon as the iframe is loaded
     setBookContext(context: BookContext): void
