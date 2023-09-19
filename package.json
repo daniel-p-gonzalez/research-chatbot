@@ -10,8 +10,9 @@
     "pf": "run-p -c typecheck lint",
     "typecheck": "tsc --noemit",
     "build:server": "vite build",
+    "build:embed": "parcel build --dist-dir dist/client/assets/static embed/embed.ts",
     "build:lambda": "yarn run esbuild --platform=node --outdir=dist --external:'@aws-sdk/*' --bundle server/*lambda.ts",
-    "build:all": "run-p build:server build:lambda"
+    "build:all": "run-p build:server build:lambda build:embed"
   },
   "dependencies": {
     "@aws-sdk/client-ssm": "^3.382.0",

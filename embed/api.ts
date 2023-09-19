@@ -1,6 +1,6 @@
 
 
-type Size = {
+export type Size = {
     left?: string
     right?: string
     top?: string

@@ -15,7 +15,10 @@ const config: UserConfig = {
             '#components': '/components',
             '#server': '/server',
         }
-    }
+    },
+    build: {
+        emptyOutDir: false, // clearing will delete embed build in assets
+    },
 }
 
 export default config

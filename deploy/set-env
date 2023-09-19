@@ -41,13 +41,21 @@ esac
 
 # terraform init -backend-config=${ENV}.conf
 
-if [[ -n "$app" ]]; then
-  export TF_VAR_sso_cookie_name=$cookie_name
-  export TF_VAR_sso_cookie_private_key=$(heroku config:get COOKIE_PRIVATE_KEY --app $app)
-  export TF_VAR_sso_cookie_public_key=$(heroku config:get COOKIE_PUBLIC_KEY --app $app)
-  export TF_VAR_qualtrics_api_key=$(heroku config:get QUALTRICS_API_KEY --app $app)
-  export TF_VAR_base_domain_name=$domain
-  export TF_VAR_enclave_api_key=${heroku_enclave_api_key:-"ec_dev_1bG346BDBGEsG5Dck8H6sAiRBJ7Vt52Vwcno"}
-  export TF_VAR_environment_name=$ENV
-  export TF_VAR_kinetic_url=${kinetic_url:-"https://$domain/"}
+if [[ -z "$app" ]]; then
+   echo APP was not set
 fi
+
+
+# TODO: update script to point to lambda to determine embed
+export TF_VAR_sso_cookie_name=$cookie_name
+export TF_VAR_base_domain_name=chat
+export TF_VAR_sso_cookie_private_key=$(heroku config:get COOKIE_PRIVATE_KEY --app $app)
+export TF_VAR_sso_cookie_public_key=$(heroku config:get COOKIE_PUBLIC_KEY --app $app)
+export TF_VAR_qualtrics_api_key=$(heroku config:get QUALTRICS_API_KEY --app $app)
+export TF_VAR_base_domain_name=$domain
+export TF_VAR_enclave_api_key=${heroku_enclave_api_key:-"ec_dev_1bG346BDBGEsG5Dck8H6sAiRBJ7Vt52Vwcno"}
+export TF_VAR_environment_name=$ENV
+export TF_VAR_kinetic_url=${kinetic_url:-"https://$domain/"}
+
+export PUBLIC_ENV__CHAT_URL="https://chat.${domain}/chat/embed/icon"
+export PUBLIC_ENV__EMBED_SCRIPT_URL="https://chat.${domain}/assets/static/embed.js"

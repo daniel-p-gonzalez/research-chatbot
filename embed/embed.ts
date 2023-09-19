@@ -9,7 +9,7 @@ const Config: FrameOptions = {
     embedLocation: 'content-end',
     name: 'icon-embed',
     float: 'right',
-    srcURL: 'http://localhost:3000/chat/embed/icon',
+    srcURL: process.env.PUBLIC_ENV__CHAT_URL ||  'http://localhost:3000/chat/embed/icon',
 }
 
 
@@ -28,11 +28,11 @@ const apiMethods = (embed: Embed) => ({
     onClose() {
         embed.destroy()
     },
-
 } satisfies ParentApi)
 
 
 type DragOffset = { x: number, y: number }
+
 
 function applyPositioning(el: HTMLElement, size: Size, defaults: Size = {}) {
     for (const prop of ['left', 'right', 'top', 'bottom', 'width', 'height']) {
