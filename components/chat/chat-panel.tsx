@@ -7,19 +7,18 @@ import {
     MessageInput,
     MessageList,
 } from '@chatscope/chat-ui-kit-react';
-
-import {CHATIDPARAM, ChatMessageReply, DEFAULT_MODEL, TranscriptMessage} from '#lib/types'
-import {pushNewSearchParam, searchParam} from '#lib/util'
-import {initialMessage} from '#lib/chat'
-import {sendMsgAndListen} from '#lib/send-and-listen'
-import {useEffect, useState} from 'react'
-import {Request} from '#lib/request'
-import {Box} from 'boxible'
-import {Button, CloseButton, Flex, Group, Select} from '@mantine/core';
-import {useLocalstorageState} from '@nathanstitt/sundry/base';
-import {ChatHeader} from "#components/chat/chat-header";
-import {OXColoredStripe} from "#components/ox-colored-stripe";
-import {ThumbDown, ThumbUp} from "tabler-icons-react";
+import { CHATIDPARAM, ChatMessageReply, DEFAULT_MODEL, TranscriptMessage } from '#lib/types'
+import { pushNewSearchParam, searchParam } from '#lib/util'
+import { initialMessage } from '#lib/chat'
+import { sendMsgAndListen } from '#lib/send-and-listen'
+import { useEffect, useState } from 'react'
+import { Request } from '#lib/request'
+import { Box } from 'boxible'
+import { Button, CloseButton, Flex, Group, Select } from '@mantine/core';
+import { useLocalstorageState } from '@nathanstitt/sundry/base';
+import { ChatHeader } from "#components/chat/chat-header";
+import { OXColoredStripe } from "#components/ox-colored-stripe";
+import { ThumbDown, ThumbUp } from "tabler-icons-react";
 
 
 function makeMessage({ isFirst, isLast, message }: { index: number, isFirst: boolean, isLast: boolean, message: TranscriptMessage }) {
@@ -80,7 +79,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
     height = '100%', width = '100%'
 }) => {
     const [model, setModel] = useLocalstorageState('model', DEFAULT_MODEL)
-    const [chat, setChat] = useState<ChatMessageReply>({id: searchParam(CHATIDPARAM) || '', transcript: []})
+    const [chat, setChat] = useState<ChatMessageReply>({ id: searchParam(CHATIDPARAM) || '', transcript: [] })
     const [transmitting, setTransmitting] = useState(false)
 
     useEffect(() => {
@@ -151,7 +150,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
                     value={model}
                     onChange={(m) => m && setModel(m)}
                     data={[ { label: 'llama2-70B', value: 'togethercomputer/llama-2-70b-chat' },
-                            { label: 'llama2-13B', value: 'togethercomputer/llama-2-13b-chat'},
+                            { label: 'llama2-13B', value: 'togethercomputer/llama-2-13b-chat' },
                             { label: 'SelfHosted (33B)', value: 'self-hosted' }]}
                     placeholder="LLM Model"
                     label={false}
