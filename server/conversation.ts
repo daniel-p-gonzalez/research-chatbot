@@ -14,7 +14,7 @@ export async function addMessageToChat(ctx: RequestContext)  {
     const c = chat as SavedChatModel
 
     await Message.create({ chatId: c.id, content: ctx.message })
-    const botMsg = await Message.create({ chatId: c.id, content: '', isBot: true})  as SavedMessageModel
+    const botMsg = await Message.create({ chatId: c.id, content: '', isBot: true })  as SavedMessageModel
 
     requestInference(c, botMsg, ctx)
     return c
@@ -23,7 +23,7 @@ export async function addMessageToChat(ctx: RequestContext)  {
 export function messageForTranscript(msg: MessageModel): TranscriptMessage {
     return {
         id: msg.id || '', content: msg.content, isBot: !!msg.isBot,
-        occured: msg.created?.toISOString() || '',
+        occurred: msg.created?.toISOString() || '',
     }
 }
 
@@ -58,7 +58,7 @@ export async function chatsBetweenDates(st?: string, ed?: string) {
                 msgs.sort(createdAtCompare)
                 chats.push({
                     id: c.id,
-                    occured: c.created?.toISOString() || '',
+                    occurred: c.created?.toISOString() || '',
                     message: msgs[0]?.content || '',
                 })
             }

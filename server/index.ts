@@ -88,7 +88,7 @@ async function startServer() {
         }
     })
 
-    installWebhookHandler(app, chatUpdates)
+    await installWebhookHandler(app, chatUpdates)
 
 
     app.get('*', async (req, res, next) => {

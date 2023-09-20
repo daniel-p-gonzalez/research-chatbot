@@ -1,0 +1,21 @@
+$color-primary: #F7F8FA;
+$color-primary-dark: #DBF3F8;
+
+@import "node_modules/@chatscope/chat-ui-kit-styles/themes/default/variables";
+@import "node_modules/@chatscope/chat-ui-kit-styles/themes/default/main";
+
+.cs-message__content {
+  border-radius: 10px 10px 10px 0 !important;
+}
+
+.cs-message {
+  margin-top: 1.5rem !important;
+}
+
+.cs-chat-container .cs-message-input {
+  background-color: #DBF3F8;
+}
+
+.cs-button--send {
+  color: #848484;
+}

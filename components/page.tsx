@@ -1,7 +1,7 @@
 import styled from '@emotion/styled'
 import type { PropsWithChildren } from 'react'
 
-export { Chat } from './chat'
+export { Chat } from './chat/chat'
 
 export const PageWrapper = styled.main({
     padding: 10,
@@ -10,6 +10,6 @@ export const PageWrapper = styled.main({
     overflow: 'auto',
 })
 
-export const PageContent:React.FC<PropsWithChildren> = ({ children }) => {
+export const PageContent = ({ children }: PropsWithChildren) => {
     return <PageWrapper className="page">{children}</PageWrapper>
 }

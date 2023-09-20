@@ -1,32 +1,53 @@
-import '@chatscope/chat-ui-kit-styles/dist/default/styles.min.css';
 import { createPortal } from 'react-dom'
 import styled from '@emotion/styled'
 import {
-    MainContainer, ChatContainer, MessageList, Message as ChatMessage, MessageInput,
+    ChatContainer,
+    MainContainer,
+    Message as ChatMessage,
+    MessageInput,
+    MessageList,
 } from '@chatscope/chat-ui-kit-react';
 import { Rnd } from 'react-rnd'
-import { ChatMessageReply, TranscriptMessage, DEFAULT_MODEL, CHATIDPARAM } from '#lib/types'
+import { CHATIDPARAM, ChatMessageReply, DEFAULT_MODEL, TranscriptMessage } from '#lib/types'
 import { pushNewSearchParam, searchParam } from '#lib/util'
 import { initialMessage } from '#lib/chat'
 import { sendMsgAndListen } from '#lib/send-and-listen'
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { Request } from '#lib/request'
 import { Box } from 'boxible'
-import { CloseButton, Select } from '@mantine/core';
+import { Button, CloseButton, Flex, Group, Select, Text } from '@mantine/core';
 import { useLocalstorageState } from '@nathanstitt/sundry/base';
-
+import { ChatHeader } from "#components/chat/chat-header";
+import { OXColoredStripe } from "#components/ox-colored-stripe";
+import { ThumbDown, ThumbUp } from "tabler-icons-react";
 
 function makeMessage({ isFirst, isLast, message }: { index: number, isFirst: boolean, isLast: boolean, message: TranscriptMessage }) {
-
     return (
         <ChatMessage key={message.id} model={{
             position: isFirst ? 'single' : isLast ? 'last' : 'normal',
             direction: message.isBot ? 'incoming' : 'outgoing',
             message: message.content || '…',
             sentTime: "just now",
-            sender: message.isBot ? 'Staxly' : 'You',
-        }} />
-
+        }}>
+            <ChatMessage.Header >
+                <Flex justify={message.isBot ? 'start' : 'end'} w='100%'>
+                    {message.isBot ? 'Staxly' : 'Me'}
+                </Flex>
+            </ChatMessage.Header>
+            {message.isBot &&
+                <ChatMessage.Footer>
+                    <Group position='apart' w='100%'>
+                        <Button c='#848484' size='xs' variant='unstyled' style={{ textUnderlineOffset: '.25rem' }} td='underline'>
+                            Leave Feedback
+                        </Button>
+                        <Group>
+                            <ThumbUp color='#DBDBDB' />
+                            <ThumbDown color='#DBDBDB' />
+                        </Group>
+                    </Group>
+                </ChatMessage.Footer>
+            }
+        </ChatMessage>
     )
 }
 
@@ -52,12 +73,10 @@ type ChatWindowProps = {
 }
 
 
-export const ChatWindow: React.FC<ChatWindowProps> = ({ onClose, isOpen, topic, subject }) => {
-
-
+export const ChatWindow = ({ onClose, isOpen, topic, subject }: ChatWindowProps) => {
     const [model, setModel] = useLocalstorageState('model', DEFAULT_MODEL)
-    const [chat, setChat] = useState<ChatMessageReply>({id: searchParam(CHATIDPARAM) || '', transcript: []})
-
+    const [chat, setChat] = useState<ChatMessageReply>({ id: searchParam(CHATIDPARAM) || '', transcript: [] })
+    const [transmitting, setTransmitting] = useState(false)
     useEffect(() => {
         if (chat.id) {
             Request<ChatMessageReply>(
@@ -81,10 +100,20 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ onClose, isOpen, topic, 
 
     if (!isOpen) return null
 
+    const clearChat = () => {
+        setChat({ id: searchParam(CHATIDPARAM) || '', transcript: [] })
+    }
+
     const onSend = (_:string, message: string) => {
-        const cc = { ...chat, transcript: [...chat.transcript] }; // create a local copy and use that, otherwise methods below will act on stale state
-        cc.transcript.push({ id: 'temp', content: message, isBot: false, occured: '' }, { id: 'temp-reply', content: '', isBot: true, occured: '' })
+        if (transmitting) return false
+        // create a local copy and use that, otherwise methods below will act on stale state
+        const cc = { ...chat, transcript: [...chat.transcript] };
+        cc.transcript.push(
+            { id: 'temp', content: message, isBot: false, occurred: '' },
+            { id: 'temp-reply', content: '', isBot: true, occurred: '' }
+        )
         setChat(cc)
+        setTransmitting(true)
         sendMsgAndListen({ chatId: cc.id, message, model, topic, subject }, {
             initial: (newChat) => {
                 if (!cc.id) {
@@ -100,6 +129,9 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ onClose, isOpen, topic, 
             error: (errorMsg) => {
                 console.warn(errorMsg)
             },
+            close: (finished) => {
+                finished && setTransmitting(false)
+            }
         })
     }
 
@@ -112,7 +144,6 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ onClose, isOpen, topic, 
         }}
         minWidth="350px"
         minHeight="450px"
-
         dragHandleClassName='header'
     >
 
@@ -126,7 +157,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ onClose, isOpen, topic, 
                     value={model}
                     onChange={(m) => m && setModel(m)}
                     data={[ { label: 'llama2-70B', value: 'togethercomputer/llama-2-70b-chat' },
-                            { label: 'llama2-13B', value: 'togethercomputer/llama-2-13b-chat'},
+                            { label: 'llama2-13B', value: 'togethercomputer/llama-2-13b-chat' },
                             { label: 'SelfHosted (33B)', value: 'self-hosted' }]}
                     placeholder="LLM Model"
                     label={false}
@@ -134,7 +165,8 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ onClose, isOpen, topic, 
                 />
                 <CloseButton onClick={onClose} size="xl" title="Close chat window" />
             </Header>
-
+            <ChatHeader />
+            <OXColoredStripe />
 
             <MainContainer style={{ height: '100%' }}>
                 <ChatContainer>
@@ -150,10 +182,11 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({ onClose, isOpen, topic, 
                     </MessageList>
 
                     <MessageInput
-                        placeholder="Type answer here"
+                        placeholder="Type message (do not share personal data)"
                         attachButton={false}
                         autoFocus
                         sendButton
+                        sendDisabled={transmitting}
                         onSend={onSend}
                     />
                 </ChatContainer>
