@@ -4,11 +4,11 @@ import 'dotenv/config'
 import OpenAIApi from 'openai'
 import { infer } from '../server/service'
 import dayjs from 'dayjs'
+import { capitalize } from '@nathanstitt/sundry/base'
 
 const openai = new OpenAIApi({
     apiKey: process.env.OPENAI_API_KEY
 });
-
 
 type EvalGroup = {
     prompt: string
@@ -16,7 +16,6 @@ type EvalGroup = {
     subject: string
     questions: string[]
 }
-
 
 const MODELS = {
     '13b': 'togethercomputer/llama-2-13b-chat',
@@ -79,9 +78,7 @@ async function evaluateGroup(group: EvalGroup) {
 
 type EvalFormat = Record<string, EvalGroup>
 
-async function evaluate() {
-    const fileContents = fs.readFileSync('evaluation/protocol.yaml', 'utf8');
-    const evals = yaml.load(fileContents) as EvalFormat
+async function evaluate(evals: EvalFormat) {
 
     const grades = await Promise.all(Object.keys(evals).map(async (groupType: string) => {
         const questions = await evaluateGroup(evals[groupType])
@@ -104,10 +101,18 @@ async function evaluate() {
 }
 
 const esc = (str: string) => str.replace(/\n/g, '<br>')
+const fileContents = fs.readFileSync('evaluation/protocol.yml', 'utf8');
+const evals = yaml.load(fileContents) as EvalFormat
 
-evaluate().then((grades) => {
+evaluate(evals).then((grades) => {
 
-    let report = ''
+    let report = '# Table of Contents\n'
+    for (const key of Object.keys(evals)) {
+        report += `* [${capitalize(key)}](#${key})\n`
+    }
+
+    report += '\n\n'
+
     for (const { type, totals, questions } of grades) {
         report += `# ${type}\n\n`
         report += `### Totals\n`
@@ -139,7 +144,7 @@ evaluate().then((grades) => {
         report += `\n\n`
         report += '\n\n'
     }
-    fs.writeFileSync(`data/${dayjs().format('YYYY-MM-DD')}-bot-evaluation.md`, report)
+    fs.writeFileSync(`evaluation/${dayjs().format('YYYY-MM-DD')}-bot-evaluation.md`, report)
     console.log(report)
 })
 

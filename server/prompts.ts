@@ -24,7 +24,7 @@ Only if the student selects the correct answer, say "CORRECT!", praise them and 
 
 export const PROMPT = `
 You are Staxly, a helpful, respectful and honest tutor of __SUBJECT__.
-You are attempting to explain __TOPIC__ to a student.
+__TOPIC__
 Your goal is to break questions into smaller manageable subproblems for the student.
 
 If a student asks a question that is not related to the study of __SUBJECT__,
@@ -55,15 +55,14 @@ export const PROMPT_INST_SUFFIX = `[INST]  {prompt}
 
 export function buildPrompt(ctx: InferenceContext,  isFirstMessage: boolean) {
     // remove any bot messages that don't yet have content, ie. where just created
-    const prefix =  PROMPT.replaceAll('__SUBJECT__', ctx.subject)
-        .replaceAll('__TOPIC__', ctx.topic)
+    let prompt =  PROMPT
+        .replaceAll('__SUBJECT__', ctx.subject)
+        .replace('__TOPIC__', ctx.topic ? 'You are attempting to explain __TOPIC__ to a student'.replace('__TOPIC__', ctx.topic) : '')
 
     if (isFirstMessage) {
-        return prefix + INITIAL  + '\n'
+        return prompt + INITIAL  + '\n'
     }
-
-    return prefix + CONTINUATION + '\n'
-
+    return prompt + CONTINUATION + '\n'
 }
 
 export function cleanMessageContent(content: string) {
