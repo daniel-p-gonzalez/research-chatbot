@@ -1,4 +1,4 @@
-import type { OnProgressCB, OnCompleteCB, MessageSendContext } from '#lib/types'
+import { OnProgressCB, OnCompleteCB, MessageSendContext, DEFAULT_MODEL } from '../lib/types'
 
 
 export class RequestContext implements MessageSendContext {
@@ -10,7 +10,7 @@ export class RequestContext implements MessageSendContext {
     readonly topic!: string
     readonly chatId!: string
     readonly message!: string
-    readonly model: string
+    readonly model = DEFAULT_MODEL
 
     constructor(onProgress: OnProgressCB, onComplete: OnCompleteCB, ctx: MessageSendContext) {
         this.onProgress = onProgress

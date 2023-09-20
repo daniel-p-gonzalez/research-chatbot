@@ -1,6 +1,5 @@
-import { MessageModel } from "./data"
-import { InferenceMessage, MessageSendContext } from "#lib/types"
-import { initialMessage } from "#lib/chat"
+import { InferenceContext } from "#lib/types"
+import { initialMessage } from "../lib/chat"
 
 const QUIZ_PROMPT = `
 You are Staxly, a helpful, respectful and honest tutor of economics.
@@ -54,16 +53,16 @@ export const PROMPT_INST_SUFFIX = `[INST]  {prompt}
 `
 
 
-export const buildPrompt = (ctx: MessageSendContext,  transcript: InferenceMessage[]) => {
+export function buildPrompt(ctx: InferenceContext,  isFirstMessage: boolean) {
     // remove any bot messages that don't yet have content, ie. where just created
     const prefix =  PROMPT.replaceAll('__SUBJECT__', ctx.subject)
         .replaceAll('__TOPIC__', ctx.topic)
 
-    if (transcript.length === 2) {
-        return prefix + INITIAL
+    if (isFirstMessage) {
+        return prefix + INITIAL  + '\n'
     }
 
-    return prefix + CONTINUATION + '\n' + initialMessage(ctx) + '\n\n'
+    return prefix + CONTINUATION + '\n'
 
 }
 

@@ -67,5 +67,15 @@ export const CHATIDPARAM = 'chatId'
 
 export type InferenceMessage = {
     content: string
-    isBot: boolean
+    isBot?: boolean
+}
+
+export type InferenceContext = {
+    transcript: InferenceMessage[]
+    model: string
+    message: string
+    topic: string
+    subject: string
+    onProgress(content: string): void
+    onComplete(content: string): void
 }

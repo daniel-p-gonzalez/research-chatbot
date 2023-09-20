@@ -3104,6 +3104,11 @@
   dependencies:
     "@types/istanbul-lib-report" "*"
 
+"@types/js-yaml@^4.0.6":
+  version "4.0.6"
+  resolved "https://registry.yarnpkg.com/@types/js-yaml/-/js-yaml-4.0.6.tgz#4b3afd5158b8749095b1f096967b6d0f838d862f"
+  integrity sha512-ACTuifTSIIbyksx2HTon3aFtCKWcID7/h3XEmRpDYdMCXxPbl+m9GteOJeaAkiAta/NJaSFuA7ahZ0NkwajDSw==
+
 "@types/jsdom@^20.0.0":
   version "20.0.1"
   resolved "https://registry.yarnpkg.com/@types/jsdom/-/jsdom-20.0.1.tgz#07c14bc19bd2f918c1929541cdaacae894744808"
@@ -3237,6 +3242,11 @@
     "@types/http-errors" "*"
     "@types/mime" "*"
     "@types/node" "*"
+
+"@types/sprintf@^0.1.0":
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/@types/sprintf/-/sprintf-0.1.0.tgz#a4b912541e0b1e8ab416ca2b85befc06247c0c8f"
+  integrity sha512-2nCrar+IHBF8avAipoO3MmZm+pe3haEM/jD+4TeDaGmrBT7CdJb/k0jQ5HomtXgsScuV3ud/GoFuv7kUDe4Vfw==
 
 "@types/stack-utils@^2.0.0":
   version "2.0.1"
@@ -4778,6 +4788,15 @@ fresh@0.5.2:
   resolved "https://registry.yarnpkg.com/fresh/-/fresh-0.5.2.tgz#3d8cadd90d976569fa835ab1f8e4b23a105605a7"
   integrity sha512-zJ2mQYM18rEFOudeV4GShTGIQ7RbzA7ozbU9I/XBpm7kqgMywgmylMwXHxZJmkVoYkna9d2pVXVXPdYTP9ej8Q==
 
+fs-extra@^11.1.0:
+  version "11.1.1"
+  resolved "https://registry.yarnpkg.com/fs-extra/-/fs-extra-11.1.1.tgz#da69f7c39f3b002378b0954bb6ae7efdc0876e2d"
+  integrity sha512-MGIE4HOvQCeUCzmlHs0vXpih4ysz4wg9qiSAu6cd42lVwPbTM1TjV7RusoyQqMmk/95gdQZX72u+YW+c3eEpFQ==
+  dependencies:
+    graceful-fs "^4.2.0"
+    jsonfile "^6.0.1"
+    universalify "^2.0.0"
+
 fs.realpath@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/fs.realpath/-/fs.realpath-1.0.0.tgz#1504ad2523158caa40db4a2787cb01411994ea4f"
@@ -4917,7 +4936,7 @@ gopd@^1.0.1:
   dependencies:
     get-intrinsic "^1.1.3"
 
-graceful-fs@^4.1.2, graceful-fs@^4.2.9:
+graceful-fs@^4.1.2, graceful-fs@^4.1.6, graceful-fs@^4.2.0, graceful-fs@^4.2.9:
   version "4.2.11"
   resolved "https://registry.yarnpkg.com/graceful-fs/-/graceful-fs-4.2.11.tgz#4183e4e8bf08bb6e05bbb2f7d2e0c8f712ca40e3"
   integrity sha512-RbJ5/jmFcNNCcDV5o9eTnBLJ/HszWV0P73bc+Ff4nS/rJj+YaS6IGyiOL0VoBYX+l1Wrl3k63h/KrH+nhJ0XvQ==
@@ -4926,6 +4945,13 @@ graphemer@^1.4.0:
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/graphemer/-/graphemer-1.4.0.tgz#fb2f1d55e0e3a1849aeffc90c4fa0dd53a0e66c6"
   integrity sha512-EtKwoO6kxCL9WO5xipiHTZlSzBm7WLT627TqC/uVRd0HKmq8NXyebnNYxDoBi7wt8eTWrUrKXCOVaFq9x1kgag==
+
+graphjin@^3.0.18:
+  version "3.0.18"
+  resolved "https://registry.yarnpkg.com/graphjin/-/graphjin-3.0.18.tgz#78cea77e2dd4538aadc931f8883beeb2b66e1837"
+  integrity sha512-v0VBunYb3VIkmc5D+6XUDc2OQNTjHhtTQ+9Q9zedxe04fWmMZMLo+L2HHTJqpmeCTiPTxeEUxi53whdbTRc3/A==
+  dependencies:
+    fs-extra "^11.1.0"
 
 graphql@^16.6:
   version "16.8.0"
@@ -5467,6 +5493,15 @@ json5@^2.2.0, json5@^2.2.1, json5@^2.2.2:
   version "2.2.3"
   resolved "https://registry.yarnpkg.com/json5/-/json5-2.2.3.tgz#78cd6f1a19bdc12b73db5ad0c61efd66c1e29283"
   integrity sha512-XmOWe7eyHYH14cLdVPoyg+GOH3rYX++KpzrylJwSW98t3Nk+U8XOl8FWKOgwtzdb8lXGf6zYwDUzeHMWfxasyg==
+
+jsonfile@^6.0.1:
+  version "6.1.0"
+  resolved "https://registry.yarnpkg.com/jsonfile/-/jsonfile-6.1.0.tgz#bc55b2634793c679ec6403094eb13698a6ec0aae"
+  integrity sha512-5dgndWOriYSm5cnYaJNhalLNDKOqFwyDB/rr1E9ZsGciGvKPs8R2xYGCacuf3z6K1YKDz182fd+fY3cn3pMqXQ==
+  dependencies:
+    universalify "^2.0.0"
+  optionalDependencies:
+    graceful-fs "^4.1.6"
 
 "jsx-ast-utils@^2.4.1 || ^3.0.0":
   version "3.3.4"
@@ -6788,6 +6823,11 @@ sprintf-js@~1.0.2:
   resolved "https://registry.yarnpkg.com/sprintf-js/-/sprintf-js-1.0.3.tgz#04e6926f662895354f3dd015203633b857297e2c"
   integrity sha512-D9cPgkvLlV3t3IzL0D0YLvGA9Ahk4PcvVwUbN0dSGr1aP0Nrt4AEnTUbuGvquEC0mA64Gqt1fzirlRs5ibXx8g==
 
+sprintf@^0.1.5:
+  version "0.1.5"
+  resolved "https://registry.yarnpkg.com/sprintf/-/sprintf-0.1.5.tgz#8f83e39a9317c1a502cb7db8050e51c679f6edcf"
+  integrity sha512-4X5KsuXFQ7f+d7Y+bi4qSb6eI+YoifDTGr0MQJXRoYO7BO7evfRCjds6kk3z7l5CiJYxgDN1x5Er4WiyCt+zTQ==
+
 srcset@4:
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/srcset/-/srcset-4.0.0.tgz#336816b665b14cd013ba545b6fe62357f86e65f4"
@@ -7169,6 +7209,11 @@ universalify@^0.2.0:
   version "0.2.0"
   resolved "https://registry.yarnpkg.com/universalify/-/universalify-0.2.0.tgz#6451760566fa857534745ab1dde952d1b1761be0"
   integrity sha512-CJ1QgKmNg3CwvAv/kOFmtnEN05f0D/cn9QntgNOQlQF9dgvVTHj3t+8JPdjqawCHk7V/KA+fbUqzZ9XWhcqPUg==
+
+universalify@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/universalify/-/universalify-2.0.0.tgz#75a4984efedc4b08975c5aeb73f530d02df25717"
+  integrity sha512-hAZsKq7Yy11Zu1DE0OzWjw7nnLZmJZYTDZZyEFHZdUhV8FkH5MCfoU1XMaxXovpyW5nq5scPqq0ZDP9Zyl04oQ==
 
 unpipe@1.0.0, unpipe@~1.0.0:
   version "1.0.0"

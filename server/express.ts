@@ -10,7 +10,7 @@ import { renderPage } from 'vite-plugin-ssr/server'
 import 'dotenv/config'
 import { root } from './root.js'
 import type { MessageSendContext } from '#lib/types'
-import { installWebhookHandler } from './service.js'
+
 import { RequestContext } from './request-context.js'
 
 
@@ -21,8 +21,6 @@ async function startServer() {
     app.use(express.text())
     app.use(express.json())
     app.use(compression())
-
-    const { chatUpdates } = await import('./chat-updates.js')
 
     // Express is only used in dev, in prod lambda's are used
     // We instantiate Vite's development server and integrate its middleware to our server.
@@ -47,7 +45,7 @@ async function startServer() {
         })
 
         const { addMessageToChat, chatTranscript  } = await vite.ssrLoadModule('#server/conversation.ts', { fixStacktrace: true })
-console.log(addMessageToChat)
+
         const chat = await addMessageToChat(new RequestContext(
             (updated) => {
                 res.write('data: ' + JSON.stringify(updated) + '\n\n');
@@ -89,7 +87,7 @@ console.log(addMessageToChat)
         }
     })
 
-    installWebhookHandler(app, chatUpdates)
+
 
 
     app.get('*', async (req, res, next) => {
