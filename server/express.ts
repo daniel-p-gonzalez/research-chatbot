@@ -38,6 +38,7 @@ async function startServer() {
 
 
     app.post('/api/chat/message', async (req, res) => {
+        console.log('Received message', req.body)
         const ctx = req.body as MessageSendContext
         res.writeHead(200, {
             "Connection": "keep-alive",
@@ -46,7 +47,7 @@ async function startServer() {
         })
 
         const { addMessageToChat, chatTranscript  } = await vite.ssrLoadModule('#server/conversation.ts', { fixStacktrace: true })
-
+console.log(addMessageToChat)
         const chat = await addMessageToChat(new RequestContext(
             (updated) => {
                 res.write('data: ' + JSON.stringify(updated) + '\n\n');

@@ -11,10 +11,18 @@ else
   env="-${env}"
 fi
 
+# error if PUBLIC_ENV__EMBED_SCRIPT_URL is not set
+if [ -z "$PUBLIC_ENV__EMBED_SCRIPT_URL" ]; then
+  echo "PUBLIC_ENV__EMBED_SCRIPT_URL is not set, source ./deploy/set-env <env>"
+  exit 1
+fi
+
 ASSETS_BUCKET=kinetic${env}-chatbot-assets
 export AWS_PAGER="" # silence cli using "less" to display output
 
 yarn run build:all
+
+# mv dist/embed* dist/client/assets/static/
 
 cd dist
 

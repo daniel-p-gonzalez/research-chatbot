@@ -1,6 +1,5 @@
 import styled from '@emotion/styled'
 import type { PropsWithChildren } from 'react'
-
 export { Chat } from './chat/chat'
 
 export const PageWrapper = styled.main({

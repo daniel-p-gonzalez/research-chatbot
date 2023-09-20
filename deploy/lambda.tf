@@ -48,6 +48,7 @@ module "fetch_chat_messages_lambda" {
     {
       path = "${path.module}/.."
       commands = [
+        "export PUBLIC_ENV__EMBED_SCRIPT_URL=https://${local.domain_name}/assets/embed.js",
         "yarn run build:all",
         ":zip dist/chatbot-fetch-messages-lambda.js .",
       ]

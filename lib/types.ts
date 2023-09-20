@@ -64,3 +64,8 @@ export type MessageSendContext = {
 export const DEFAULT_MODEL = 'self-hosted'
 
 export const CHATIDPARAM = 'chatId'
+
+export type InferenceMessage = {
+    content: string
+    isBot: boolean
+}
