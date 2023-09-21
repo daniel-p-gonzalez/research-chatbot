@@ -5,6 +5,9 @@ import OpenAIApi from 'openai'
 import { infer } from '../server/service'
 import dayjs from 'dayjs'
 import { capitalize } from '@nathanstitt/sundry/base'
+import spr from 'sprintf'
+
+const sprintf = spr.sprintf
 
 const openai = new OpenAIApi({
     apiKey: process.env.OPENAI_API_KEY
@@ -50,7 +53,7 @@ async function evaluateGroup(group: EvalGroup) {
                 subject: group.subject,
             })
             const gpt = await openai.chat.completions.create({
-                model: 'gpt-3.5-turbo',
+                model: 'gpt-4',
                 messages: [
                     {
                         role: 'user', content: group.prompt.replace('__QUESTION__', question).replace('__RESPONSE__', response),
@@ -106,7 +109,25 @@ const evals = yaml.load(fileContents) as EvalFormat
 
 evaluate(evals).then((grades) => {
 
-    let report = '# Table of Contents\n'
+    let report = '# Chatbot Evaluation\n\n'
+    let overallTotals = {} as  Record<ModelId, number>
+
+    for (const modelId of ModelIds) {
+        for (const { totals } of grades) {
+            overallTotals[modelId] = (overallTotals[modelId] || 0) + totals[modelId]
+        }
+    }
+    const sortedModels = ModelIds.sort((a, b) => overallTotals[b] - overallTotals[a])
+
+    report += `| Model | OverallScore |\n`
+    report += `| -------- | ------: | \n`
+    for (const modelId of sortedModels) {
+        report += `| ${modelId} | ${sprintf('%0.1f', overallTotals[modelId])} |\n`
+    }
+    report += '\n\n'
+
+
+    report += '## Table of Contents\n'
     for (const key of Object.keys(evals)) {
         report += `* [${capitalize(key)}](#${key})\n`
     }
@@ -117,12 +138,10 @@ evaluate(evals).then((grades) => {
         report += `# ${type}\n\n`
         report += `### Totals\n`
 
-        const sortedModels = ModelIds.sort((a, b) => totals[b] - totals[a])
-
         report += `| Model | Score |\n`
-        report += `| -------- | ------ | \n`
+        report += `| -------- | ------: | \n`
         for (const modelId of sortedModels) {
-            report += `| ${modelId} | ${totals[modelId]} |\n`
+            report += `| ${modelId} | ${sprintf('%0.1f', totals[modelId])} |\n`
         }
         report += '\n\n'
 
