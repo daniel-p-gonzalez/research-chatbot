@@ -16,6 +16,13 @@ $color-primary-dark: #DBF3F8;
   background-color: #DBF3F8;
 }
 
+.cs-message-input__tools {
+  margin-left: .5rem;
+  margin-right: 1rem;
+}
+
 .cs-button--send {
-  color: #848484;
+  color: #FFF;
+  background-color: #D4450C;
+  border-radius: 5px;
 }

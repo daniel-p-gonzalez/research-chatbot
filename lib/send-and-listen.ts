@@ -54,8 +54,7 @@ export const sendMsgAndListen = async (context: MessageSendContext, cb: MsgUpdat
         },
         onclose() {
             if (hasReplied) { // we've got at least some content
-                // cb.close(true)
-                console.log('hi')
+                cb.close(true)
                 throw new CompletedError() // signal not to retry
             }
         }

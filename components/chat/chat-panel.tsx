@@ -14,7 +14,7 @@ import { sendMsgAndListen } from '#lib/send-and-listen'
 import { useEffect, useState } from 'react'
 import { Request } from '#lib/request'
 import { Box } from 'boxible'
-import { Button, CloseButton, Flex, Group, Select } from '@mantine/core';
+import { Button, CloseButton, Flex, Group, Select, Text } from '@mantine/core';
 import { useLocalstorageState } from '@nathanstitt/sundry/base';
 import { ChatHeader } from "#components/chat/chat-header";
 import { OXColoredStripe } from "#components/ox-colored-stripe";
@@ -110,12 +110,10 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
     }
 
     const onSend = async (_:string, message: string) => {
-        // if (!transmitting) return false
-
         const cc = { ...chat, transcript: [...chat.transcript] }; // create a local copy and use that, otherwise methods below will act on stale state
         cc.transcript.push({ id: 'temp', content: message, isBot: false, occurred: '' }, { id: 'temp-reply', content: '', isBot: true, occurred: '' })
         setChat(cc)
-        // setTransmitting(true)
+        setTransmitting(true)
         await sendMsgAndListen({ chatId: cc.id, message, model, topic, subject }, {
             initial: (newChat) => {
                 if (!cc.id) {
@@ -132,7 +130,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
                 console.warn(errorMsg)
             },
             close: (finished) => {
-                // finished && setTransmitting(false)
+                finished && setTransmitting(false)
             }
         })
     }
@@ -159,10 +157,10 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
                 <CloseButton onClick={() => onClose()} size="xl" title="Close chat window" />
             </Header>
 
-            <ChatHeader />
+            <ChatHeader clearChat={clearChat} />
             <OXColoredStripe />
 
-            <MainContainer style={{ height: '100%' }}>
+            <MainContainer style={{ height: '100%', border: 'none' }}>
                 <ChatContainer>
                     <MessageList>
                         <ChatMessage model={{
@@ -181,11 +179,20 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
                         autoFocus
                         sendButton
                         sendDisabled={transmitting}
+                        sendOnReturnDisabled={transmitting}
                         onSend={onSend}
                     />
                 </ChatContainer>
             </MainContainer>
+
+            <Group bg='#DBF3F8' p='1em' position='apart'>
+                <Text size='xs'>Terms | Privacy | FAQ </Text>
+                <Text size='xs'>Powered by together.ai </Text>
+            </Group>
         </Wrapper>
     )
+}
+
+const ChatFooter = () => {
 
 }

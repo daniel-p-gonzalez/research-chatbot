@@ -47,7 +47,7 @@ async function startServer() {
         })
 
         const { addMessageToChat, chatTranscript  } = await vite.ssrLoadModule('#server/conversation.ts', { fixStacktrace: true })
-console.log(addMessageToChat)
+        console.log(addMessageToChat)
         const chat = await addMessageToChat(new RequestContext(
             (updated) => {
                 res.write('data: ' + JSON.stringify(updated) + '\n\n');
