@@ -5,3 +5,4 @@ dist/
 **/.terraform/*
 deploy/builds/
 .parcel-cache
+yarn-error.log
