@@ -17,7 +17,6 @@
   "dependencies": {
     "@aws-sdk/client-ssm": "^3.382.0",
     "@chatscope/chat-ui-kit-react": "^1.10.1",
-    "@chatscope/use-chat": "^3.1.1",
     "@emotion/css": "^11.11.2",
     "@emotion/react": "^11.11.1",
     "@emotion/server": "^11.11.0",
