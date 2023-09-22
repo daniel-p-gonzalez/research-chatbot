@@ -14,11 +14,12 @@ import { sendMsgAndListen } from '#lib/send-and-listen'
 import { useEffect, useState } from 'react'
 import { Request } from '#lib/request'
 import { Box } from 'boxible'
-import { Button, CloseButton, Flex, Group, Select, Text } from '@mantine/core';
+import { ActionIcon, Anchor, Button, CloseButton, Drawer, Flex, Group, Image, Select, Text, Title } from '@mantine/core';
 import { useLocalstorageState } from '@nathanstitt/sundry/base';
 import { ChatHeader } from "#components/chat/chat-header";
 import { OXColoredStripe } from "#components/ox-colored-stripe";
-import { ThumbDown, ThumbUp } from "tabler-icons-react";
+import { ThumbDown, ThumbUp, ExternalLink, Eraser, X } from "tabler-icons-react";
+import Staxly from "#components/assets/staxly.svg";
 
 
 function makeMessage({ isFirst, isLast, message }: { index: number, isFirst: boolean, isLast: boolean, message: TranscriptMessage }) {
@@ -41,13 +42,48 @@ function makeMessage({ isFirst, isLast, message }: { index: number, isFirst: boo
                             Leave Feedback
                         </Button>
                         <Group>
-                            <ThumbUp color='#DBDBDB' />
+                            <ThumbsUpFeedback />
                             <ThumbDown color='#DBDBDB' />
                         </Group>
                     </Group>
                 </ChatMessage.Footer>
             }
         </ChatMessage>
+    )
+}
+
+const QualtricsFeedback = styled.iframe({
+    height: '100%',
+    width: '100%',
+})
+
+const ThumbsUpFeedback = () => {
+    const [open, setOpen] = useState(false);
+    return (
+        <>
+            <Drawer.Root size='lg' target='.react-draggable' position='bottom' opened={open} onClose={() => setOpen(false)}>
+                <Drawer.Overlay />
+                <Drawer.Content style={{ overflow: 'hidden' }}>
+                    <Drawer.Header bg='#FFF' style={{ padding: 0, justifyContent: 'flex-end' }}>
+                        <Drawer.Title>
+                            <Button c='#848484'
+                                    size='xs'
+                                    variant='unstyled'
+                                    style={{ textUnderlineOffset: '.25rem' }}
+                                    td='underline'
+                                    onClick={() => setOpen(false)}
+                            >
+                                Return to chat
+                            </Button>
+                        </Drawer.Title>
+                    </Drawer.Header>
+                    <Drawer.Body p={0} h='100%' style={{ overflow: 'hidden' }}>
+                        <QualtricsFeedback src='https://riceuniversity.co1.qualtrics.com/jfe/form/SV_bKM7QsMAw9HfeVU' />
+                    </Drawer.Body>
+                </Drawer.Content>
+            </Drawer.Root>
+            <ThumbUp onClick={() => {setOpen(true)}} color='#DBDBDB' />
+        </>
     )
 }
 
@@ -97,7 +133,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
                 }
             })
         }
-    }, [])
+    }, [chat.id])
 
     useEffect(() => {
         if (!isOpen) setChat({ id: '', transcript: [] })
@@ -157,7 +193,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
                 <CloseButton onClick={() => onClose()} size="xl" title="Close chat window" />
             </Header>
 
-            <ChatHeader clearChat={clearChat} />
+            <ChatHeader clearChat={clearChat} onClose={onClose}/>
             <OXColoredStripe />
 
             <MainContainer style={{ height: '100%', border: 'none' }}>
@@ -185,9 +221,23 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
                 </ChatContainer>
             </MainContainer>
 
-            <Group bg='#DBF3F8' p='1em' position='apart'>
-                <Text size='xs'>Terms | Privacy | FAQ </Text>
-                <Text size='xs'>Powered by together.ai </Text>
+            <Group bg='#DBF3F8' p='.5em 1em' position='apart'>
+                <Text size='xs' color='#026AA1'>
+                    <Anchor href='' target='_blank'>
+                        Terms
+                    </Anchor>
+                    <span> | </span>
+                    <Anchor href='' target='_blank'>
+                        Privacy
+                    </Anchor>
+                    <span> | </span>
+                    <Anchor href='' target='_blank'>
+                        FAQ
+                    </Anchor>
+                </Text>
+                <Anchor display='flex' underline color='#848484' size='xs' align='center'>
+                    Powered by together.ai&nbsp;<ExternalLink height={14} width={14} />
+                </Anchor>
             </Group>
         </Wrapper>
     )
