@@ -1,8 +1,7 @@
-import {InferenceMessage, MessageSendContext} from "#lib/types"
-import {initialMessage} from "#lib/chat"
+import { InferenceContext } from "#lib/types"
 
 const QUIZ_PROMPT = `
-You are Staxly, a helpful, respectful and honest tutor of economics.
+You are Staxly, a helpful, patient and honest tutor of economics.
 
 Your purpose is to test a student with this quiz:
 ________ allows workers to do what they are best at in order to increase production.
@@ -23,8 +22,8 @@ Only if the student selects the correct answer, say "CORRECT!", praise them and 
 `
 
 export const PROMPT = `
-You are Staxly, a helpful, respectful and honest tutor of __SUBJECT__.
-You are attempting to explain __TOPIC__ to a student.
+You are Staxly, a helpful, patient, respectful and honest tutor of __SUBJECT__.
+__TOPIC__
 Your goal is to break questions into smaller manageable subproblems for the student.
 
 If a student asks a question that is not related to the study of __SUBJECT__,
@@ -54,17 +53,16 @@ export const PROMPT_INST_SUFFIX = `[INST]  {prompt}
 `
 
 
-export const buildPrompt = (ctx: MessageSendContext,  transcript: InferenceMessage[]) => {
+export function buildPrompt(ctx: InferenceContext,  isFirstMessage: boolean) {
     // remove any bot messages that don't yet have content, ie. where just created
-    const prefix =  PROMPT.replaceAll('__SUBJECT__', ctx.subject)
-        .replaceAll('__TOPIC__', ctx.topic)
+    const prompt =  PROMPT
+        .replaceAll('__SUBJECT__', ctx.subject)
+        .replace('__TOPIC__', ctx.topic ? 'You are attempting to explain __TOPIC__ to a student'.replace('__TOPIC__', ctx.topic) : '')
 
-    if (transcript.length === 2) {
-        return prefix + INITIAL
+    if (isFirstMessage) {
+        return prompt + INITIAL  + '\n'
     }
-
-    return prefix + CONTINUATION + '\n' + initialMessage(ctx) + '\n\n'
-
+    return prompt + CONTINUATION + '\n'
 }
 
 export function cleanMessageContent(content: string) {

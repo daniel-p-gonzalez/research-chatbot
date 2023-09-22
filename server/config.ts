@@ -33,3 +33,5 @@ export async function ssoCookieConfig() {
     const cookieStr = await getConfigValue('sso-cookie')
     return JSON.parse(cookieStr) as SSOCookie
 }
+
+export const FASTCHAT_API_URL = 'https://luffy-chat.staging.kinetic.openstax.org/v1/chat/completions'

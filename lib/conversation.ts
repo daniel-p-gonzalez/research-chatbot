@@ -1,4 +1,4 @@
-import { requestInference } from './service'
+import { inferenceForChat } from './service'
 import { Chat, Message, messagesForChatId } from './data'
 import type { SavedChatModel, MessageModel, SavedMessageModel } from './data'
 import type { MessageJSON } from './types'
@@ -15,7 +15,7 @@ export async function addMessageToChat(ctx: RequestContext)  {
     await Message.create({ chatId: c.id, content: ctx.message })
     const botMsg = await Message.create({ chatId: c.id, content: '', isBot: true })  as SavedMessageModel
 
-    requestInference(c, botMsg, ctx)
+    inferenceForChat(c, botMsg, ctx)
     return c
 }
 
