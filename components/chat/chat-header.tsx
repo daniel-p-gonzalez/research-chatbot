@@ -8,18 +8,18 @@ export const ChatHeader: FC<{
     onClose: () => void
 }> = ({ clearChat, onClose }) => {
     return (
-        <Group px='xs' bg='#D4450C' position='apart'>
-            <Group spacing='xs'>
+        <Group px='xs' bg='#D4450C' justify='space-between'>
+            <Group gap='xs'>
                 <Image src={Staxly} height={40} width={40} mt={10} alt='Staxly Logo' />
-                <Title color='#ffffff' order={6}>Ask Staxly</Title>
+                <Title c='#ffffff' order={6}>Ask Staxly</Title>
             </Group>
 
-            <Group spacing='xs'>
+            <Group gap='xs'>
                 <Button c='#FFF'
                         size='sm'
                         p={0}
                         variant='transparent'
-                        leftIcon={<Eraser height={24} width={24} />}
+                        leftSection={<Eraser height={24} width={24} />}
                         onClick={clearChat}
                 >
                     Clear chat

@@ -18,6 +18,11 @@ $color-primary-dark: #DBF3F8;
   padding-bottom: .5rem;
 }
 
+.cs-message-input__content-editor-wrapper:focus-within {
+  box-shadow: 0px 0px 4px 0px rgba(13, 192, 220, 0.5);
+  border: 1px solid rgba(13, 192, 220, 1);
+}
+
 .cs-message-input__tools {
   margin-left: .5rem;
   margin-right: 1rem;

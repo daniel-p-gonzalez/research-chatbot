@@ -1,7 +1,7 @@
 {
   "license": "AGPL-3.0",
   "scripts": {
-    "start": "npm run server",
+    "start": "./bin/local-dynamodb && npm run server",
     "prod": "npm run lint && npm run build && npm run server:prod",
     "tsnode": "node --experimental-specifier-resolution=node --trace-warnings --loader ts-node/esm",
     "server": "yarn run tsnode ./server/express.ts",
@@ -23,10 +23,10 @@
     "@emotion/react": "^11.11.1",
     "@emotion/server": "^11.11.0",
     "@emotion/styled": "^11.11.0",
-    "@mantine/core": "^6.0.20",
-    "@mantine/dates": "^6.0.20",
-    "@mantine/form": "^6.0.17",
-    "@mantine/hooks": "^6.0.20",
+    "@mantine/core": "^7.0.2",
+    "@mantine/dates": "^7.0.2",
+    "@mantine/form": "^7.0.2",
+    "@mantine/hooks": "^7.0.2",
     "@microsoft/fetch-event-source": "^2.0.1",
     "@nathanstitt/sundry": "^1.7.5",
     "@tabler/icons-react": "^2.30.0",
@@ -87,7 +87,7 @@
   },
   "type": "module",
   "devDependencies": {
-    "sass": "^1.67.0",
-    "process": "^0.11.10"
+    "process": "^0.11.10",
+    "sass": "^1.67.0"
   }
 }
