@@ -15,12 +15,19 @@ export const inferenceForChat = async (chat: SavedChatModel, message: SavedMessa
 
 
 export const requestInference = async (ctx: InferenceContext) => {
+    let requestInference: null | ((ctx: InferenceContext) => Promise<AbortController | void>) = null
+
     if (ctx.model == 'self-hosted' || ctx.model == 'quiz') {
-        const { requestInference } = await import('./service.fastchat.js')
-        return requestInference(ctx)
+        requestInference = (await import('./service.fastchat.js')).requestInference
+    } else if (ctx.model.match(/^openai/)) {
+        requestInference = (await import('./service.openai.js')).requestInference
+    } else if (ctx.model.match(/^together/)) {
+        requestInference = (await import('./service.together.js')).requestInference
     }
-    const { requestInference } = await import('./service.together.js')
-    return requestInference(ctx)
+    if (!requestInference) {
+        throw new Error(`unknown model ${ctx.model} requested`)
+    }
+    return await requestInference(ctx)
 }
 
 
