@@ -5,6 +5,7 @@ import OpenAIApi from 'openai'
 import { infer } from '../server/service'
 import dayjs from 'dayjs'
 import { capitalize } from '@nathanstitt/sundry/base'
+import Papa from 'papaparse'
 import spr from 'sprintf'
 
 const sprintf = spr.sprintf
@@ -42,7 +43,8 @@ type QuestionEval = {
 
 async function evaluateGroup(group: EvalGroup) {
     const grades: QuestionEval[] = [];
-    for (let question of group.questions) {
+    const questions = group.questions // .slice(0, 20)
+    for (let question of questions) {
         console.log(question)
 
         const scores = await Promise.all(Object.entries(MODELS).map(async ([ id, key ]) => {
@@ -84,8 +86,8 @@ async function evaluateGroup(group: EvalGroup) {
 type EvalFormat = Record<string, EvalGroup>
 
 async function evaluate(evals: EvalFormat) {
-
-    const grades = await Promise.all(Object.keys(evals).map(async (groupType: string) => {
+    const sections = Object.keys(evals)
+    const grades = await Promise.all(sections.map(async (groupType: string) => {
         const questions = await evaluateGroup(evals[groupType])
         const totals: Record<ModelId, number> = {} as Record<ModelId, number>
 
@@ -135,6 +137,7 @@ evaluate(evals).then((grades) => {
     }
 
     report += '\n\n'
+    const results: (Record<ModelId, string> & { question: string })[] = []
 
     for (const { type, totals, questions } of grades) {
         report += `# ${type}\n\n`
@@ -151,6 +154,9 @@ evaluate(evals).then((grades) => {
         report += `| -------- | -------- |\n`
         let first = true
         for ( const q of questions ) {
+            const result: any = {
+                question: q.question
+            }
             if (!first) {
                 report += '| | |\n'
             }
@@ -158,14 +164,19 @@ evaluate(evals).then((grades) => {
             for (const modelId of sortedModels) {
                 const check = q.scores[modelId]
                 report += `| ${modelId} <br> ${check.score}pts | ${esc(check.response)} |\n`
+                result[modelId] = check.response
             }
             first = false
+            results.push(result)
         }
 
         report += `\n\n`
         report += '\n\n'
     }
-    fs.writeFileSync(`evaluation/${dayjs().format('YYYY-MM-DD')}-bot-evaluation.md`, report)
+
+    fs.writeFileSync(`evaluation/${dayjs().format('YYYY-MM-DD')}.csv`, Papa.unparse(results))
+
+    fs.writeFileSync(`evaluation/${dayjs().format('YYYY-MM-DD')}.md`, report)
     console.log(report)
 })
 
