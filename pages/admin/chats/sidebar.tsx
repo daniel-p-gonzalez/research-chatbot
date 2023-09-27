@@ -67,7 +67,7 @@ const Chat: React.FC<{ chat: ChatWithFirstMessage }> = ({ chat }) => {
         <NavLink label={(
             <ChatLink href={`/admin/chats/?chatId=${chat.id}`}>
                 <span>{chat.message}</span>
-                <Text fz="sm">{dayjs(chat.occured).format('MMM D, YYYY h:mma')}</Text>
+                <Text fz="sm">{dayjs(chat.occurred).format('MMM D, YYYY h:mma')}</Text>
             </ChatLink>
         )} />
     )
@@ -84,7 +84,7 @@ export const Sidebar: React.FC = () => {
     const [range, setRange] = useState<DateRange>([dayjs().startOf('day').toDate(), dayjs().endOf('day').toDate()]);
 
     const query = useQuery<ChatsReply, Error>(['chats', ...range ], async () => {
-        const params = new URLSearchParams({ start: range[0]?.toISOString() || '', end: range[1]?.toISOString() || ''})
+        const params = new URLSearchParams({ start: range[0]?.toISOString() || '', end: range[1]?.toISOString() || '' })
         return await Request<ChatsReply>(`/api/admin/chats?${params.toString()}`)
     })
 

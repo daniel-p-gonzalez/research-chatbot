@@ -1,6 +1,7 @@
 module.exports = {
   rules: {
-    'react-refresh/only-export-components': 'warn'
+    'react-refresh/only-export-components': 'warn',
+    'object-curly-spacing': ['error', 'always'],
   },
   reportUnusedDisableDirectives: true,
   ignorePatterns: ['dist/*'],
@@ -15,5 +16,5 @@ module.exports = {
     'plugin:react-hooks/recommended',
     'plugin:@typescript-eslint/recommended'
   ],
-  parser: '@typescript-eslint/parser'
+  parser: '@typescript-eslint/parser',
 }

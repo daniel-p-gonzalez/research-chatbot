@@ -9,9 +9,8 @@ import compression from 'compression'
 import { renderPage } from 'vite-plugin-ssr/server'
 import 'dotenv/config'
 import { root } from './root.js'
-import type { MessageSendContext } from '#lib/types'
-
 import { RequestContext } from './request-context.js'
+import type { MessageSendContext } from '#lib/types'
 
 
 startServer()
@@ -86,9 +85,6 @@ async function startServer() {
             res.status(404).send('Not found')
         }
     })
-
-
-
 
     app.get('*', async (req, res, next) => {
         const pageContextInit = {

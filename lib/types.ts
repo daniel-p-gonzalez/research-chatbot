@@ -3,7 +3,7 @@
     content: string
     isBot: boolean
     model?: string
-    occured: string
+    occurred: string
 }
 
 
@@ -48,7 +48,7 @@ export type OnCompleteCB =  (errorMessage?: string) => void
 
 export type ChatWithFirstMessage = {
     id: string,
-    occured: string
+    occurred: string
     message: string
 }
 

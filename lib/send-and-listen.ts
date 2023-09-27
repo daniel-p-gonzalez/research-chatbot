@@ -5,6 +5,7 @@ export type MsgUpdateCB = {
     initial: (msg: ChatMessageReply) => void,
     message: (msg: SSChatUpdate) => void,
     error: (errorMessage: string) => void,
+    close: (finished: boolean) => void
 }
 const MAX_ATTEMPTS = 3
 
@@ -25,7 +26,6 @@ export const sendMsgAndListen = async (context: MessageSendContext, cb: MsgUpdat
         signal: controller.signal,
         body: JSON.stringify(context),
         onmessage(msg) {
-            console.log(msg)
             try {
                 const data = JSON.parse(msg.data)
 
@@ -43,7 +43,6 @@ export const sendMsgAndListen = async (context: MessageSendContext, cb: MsgUpdat
             catch (err: any) {
                 throw new Error(`${err.message} parsing payload: ${msg.data}`)
             }
-
         },
         onerror(err) {
             if (attempts > MAX_ATTEMPTS || err instanceof CompletedError) {
@@ -55,6 +54,7 @@ export const sendMsgAndListen = async (context: MessageSendContext, cb: MsgUpdat
         },
         onclose() {
             if (hasReplied) { // we've got at least some content
+                cb.close(true)
                 throw new CompletedError() // signal not to retry
             }
         }
