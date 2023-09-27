@@ -24,7 +24,9 @@ const MODELS = {
     '13b': 'togethercomputer/llama-2-13b-chat',
     'student': 'self-hosted',
     '70b': 'togethercomputer/llama-2-70b-chat',
+    'gpt-3.5': 'openai/gpt-3.5-turbo',
 }
+
 type ModelId = keyof typeof MODELS
 const ModelIds = Object.keys(MODELS) as ModelId[]
 

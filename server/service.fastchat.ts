@@ -101,7 +101,7 @@ export async function requestInference(ctx: InferenceContext) {
             console.warn("ERROR", err)
         }
     })
-
+    return controller
 }
 
 export const inferenceForChat = async (
