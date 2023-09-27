@@ -38,12 +38,13 @@ function makeMessage({ isFirst, isLast, message }: { index: number, isFirst: boo
             {message.isBot &&
                 <ChatMessage.Footer>
                     <Group justify='space-between' w='100%'>
-                        <Button c='#848484' size='xs' variant='transparent' style={{ textUnderlineOffset: '.25rem' }} td='underline'>
-                            Leave Feedback
-                        </Button>
+                        {/*<Button c='#848484' size='xs' variant='transparent' style={{ textUnderlineOffset: '.25rem' }} td='underline'>*/}
+                        {/*    Leave Feedback*/}
+                        {/*</Button>*/}
+                        <LeaveFeedback />
                         <Group>
-                            <ThumbsUpFeedback />
-                            <ThumbDown color='#DBDBDB' />
+                            <ThumbUp onClick={() => {alert('todo')}} color='#DBDBDB' />
+                            <ThumbDown onClick={() => {alert('todo')}} color='#DBDBDB' />
                         </Group>
                     </Group>
                 </ChatMessage.Footer>
@@ -57,7 +58,7 @@ const QualtricsFeedback = styled.iframe({
     width: '100%',
 })
 
-const ThumbsUpFeedback = () => {
+const LeaveFeedback = () => {
     const [open, setOpen] = useState(false);
     return (
         <>
@@ -82,7 +83,9 @@ const ThumbsUpFeedback = () => {
                     </Drawer.Body>
                 </Drawer.Content>
             </Drawer.Root>
-            <ThumbUp onClick={() => {setOpen(true)}} color='#DBDBDB' />
+            <Button onClick={() => setOpen(true)} c='#848484' size='xs' variant='transparent' style={{ textUnderlineOffset: '.25rem' }} td='underline'>
+                Leave Feedback
+            </Button>
         </>
     )
 }
@@ -119,6 +122,7 @@ export const ChatPanel = ({
     const [transmitting, setTransmitting] = useState(false)
 
     useEffect(() => {
+        console.log(chat)
         if (chat.id) {
             Request<ChatMessageReply>(
                 '/api/chat/fetch-messages', {
@@ -207,8 +211,8 @@ export const ChatPanel = ({
             <OXColoredStripe />
             <Center mt={'1rem'}>
                 <Text size='xs'>
-                    {chat.transcript[0]?.occurred ? 
-                        dayjs(chat.transcript[0].occurred).format('ll LT') : 
+                    {chat.transcript[0]?.occurred ?
+                        dayjs(chat.transcript[0].occurred).format('ll LT') :
                         null
                     }
                 </Text>
@@ -252,7 +256,7 @@ export const ChatPanel = ({
                         FAQ
                     </Anchor>
                 </Text>
-                <Anchor display='flex' underline='always' c='#848484' size='xs'>
+                <Anchor href='https://together.ai/about' target='_blank' display='flex' underline='always' c='#848484' size='xs'>
                     Powered by together.ai&nbsp;<ExternalLink height={14} width={14} />
                 </Anchor>
             </Group>
