@@ -54,7 +54,7 @@ export type ChatWithFirstMessage = {
 
 
 export type MessageSendContext = {
-    chatId:string
+    chatId: string
     message: string
     topic: string
     model: string

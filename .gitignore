@@ -6,3 +6,6 @@ dist/
 deploy/builds/
 .parcel-cache
 yarn-error.log
+/test-results/
+/playwright-report/
+/playwright/.cache/
