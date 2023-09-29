@@ -1,12 +1,17 @@
 import React from 'react'
 import { PageContextProvider } from '#lib/page-context'
-import type { PageContext } from './types'
-import { MantineProvider } from '@mantine/core';
+import type { Layout, PageContext } from './types'
+import { ColorSchemeScript, createTheme, MantineProvider, useComputedColorScheme } from '@mantine/core';
 import { Sidebar } from '#components/sidebar'
-import type { Layout } from './types'
 import { GridLayout } from '#components/grid-layout';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import '@mantine/core/styles.css';
+
 export { PageShell }
+
+const theme = createTheme({
+
+})
 
 function PageShell({ children, pageContext }: { children: React.ReactNode; pageContext: PageContext }) {
     const Layout = pageContext.exports.Layout || LayoutDefault
@@ -16,7 +21,8 @@ function PageShell({ children, pageContext }: { children: React.ReactNode; pageC
         <React.StrictMode>
             <QueryClientProvider client={queryClient}>
                 <PageContextProvider pageContext={pageContext}>
-                    <MantineProvider withGlobalStyles withNormalizeCSS>
+                    <ColorSchemeScript defaultColorScheme="light" />
+                    <MantineProvider defaultColorScheme='light' theme={theme}>
                         <Layout>
                             {children}
                         </Layout>

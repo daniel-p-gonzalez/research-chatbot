@@ -14,13 +14,12 @@ import { sendMsgAndListen } from '#lib/send-and-listen'
 import { useEffect, useState } from 'react'
 import { Request } from '#lib/request'
 import { Box } from 'boxible'
-import { ActionIcon, Anchor, Button, CloseButton, Drawer, Flex, Group, Image, Select, Text, Title } from '@mantine/core';
+import { Anchor, Button, Center, CloseButton, Drawer, Flex, Group, Select, Text, Tooltip } from '@mantine/core';
 import { useLocalstorageState } from '@nathanstitt/sundry/base';
 import { ChatHeader } from "#components/chat/chat-header";
 import { OXColoredStripe } from "#components/ox-colored-stripe";
-import { ThumbDown, ThumbUp, ExternalLink, Eraser, X } from "tabler-icons-react";
-import Staxly from "#components/assets/staxly.svg";
-
+import { ExternalLink, ThumbDown, ThumbUp } from "tabler-icons-react";
+import dayjs from "dayjs";
 
 function makeMessage({ isFirst, isLast, message }: { index: number, isFirst: boolean, isLast: boolean, message: TranscriptMessage }) {
     return (
@@ -28,22 +27,24 @@ function makeMessage({ isFirst, isLast, message }: { index: number, isFirst: boo
             position: isFirst ? 'single' : isLast ? 'last' : 'normal',
             direction: message.isBot ? 'incoming' : 'outgoing',
             message: message.content || '…',
-            sentTime: "just now",
         }}>
-            <ChatMessage.Header >
+            <ChatMessage.Header>
                 <Flex justify={message.isBot ? 'start' : 'end'} w='100%'>
-                    {message.isBot ? 'Staxly' : 'Me'}
+                    <Tooltip label={message.occurred}>
+                        <span>{message.isBot ? 'Staxly' : 'Me'}</span>
+                    </Tooltip>
                 </Flex>
             </ChatMessage.Header>
             {message.isBot &&
                 <ChatMessage.Footer>
-                    <Group position='apart' w='100%'>
-                        <Button c='#848484' size='xs' variant='unstyled' style={{ textUnderlineOffset: '.25rem' }} td='underline'>
-                            Leave Feedback
-                        </Button>
+                    <Group justify='space-between' w='100%'>
+                        {/*<Button c='#848484' size='xs' variant='transparent' style={{ textUnderlineOffset: '.25rem' }} td='underline'>*/}
+                        {/*    Leave Feedback*/}
+                        {/*</Button>*/}
+                        <LeaveFeedback />
                         <Group>
-                            <ThumbsUpFeedback />
-                            <ThumbDown color='#DBDBDB' />
+                            <ThumbUp onClick={() => {alert('todo')}} color='#DBDBDB' />
+                            <ThumbDown onClick={() => {alert('todo')}} color='#DBDBDB' />
                         </Group>
                     </Group>
                 </ChatMessage.Footer>
@@ -57,18 +58,18 @@ const QualtricsFeedback = styled.iframe({
     width: '100%',
 })
 
-const ThumbsUpFeedback = () => {
+const LeaveFeedback = () => {
     const [open, setOpen] = useState(false);
     return (
         <>
-            <Drawer.Root size='lg' target='.react-draggable' position='bottom' opened={open} onClose={() => setOpen(false)}>
+            <Drawer.Root size='lg' portalProps={{ target: '.react-draggable' }} position='bottom' opened={open} onClose={() => setOpen(false)}>
                 <Drawer.Overlay />
                 <Drawer.Content style={{ overflow: 'hidden' }}>
                     <Drawer.Header bg='#FFF' style={{ padding: 0, justifyContent: 'flex-end' }}>
                         <Drawer.Title>
                             <Button c='#848484'
                                     size='xs'
-                                    variant='unstyled'
+                                    variant='transparent'
                                     style={{ textUnderlineOffset: '.25rem' }}
                                     td='underline'
                                     onClick={() => setOpen(false)}
@@ -82,7 +83,9 @@ const ThumbsUpFeedback = () => {
                     </Drawer.Body>
                 </Drawer.Content>
             </Drawer.Root>
-            <ThumbUp onClick={() => {setOpen(true)}} color='#DBDBDB' />
+            <Button onClick={() => setOpen(true)} c='#848484' size='xs' variant='transparent' style={{ textUnderlineOffset: '.25rem' }} td='underline'>
+                Leave Feedback
+            </Button>
         </>
     )
 }
@@ -110,15 +113,16 @@ export type ChatPanelProps = {
 }
 
 
-export const ChatPanel: React.FC<ChatPanelProps> = ({
+export const ChatPanel = ({
     onClose, isOpen, topic, subject, className,
     height = '100%', width = '100%'
-}) => {
+}: ChatPanelProps) => {
     const [model, setModel] = useLocalstorageState('model', DEFAULT_MODEL)
     const [chat, setChat] = useState<ChatMessageReply>({ id: searchParam(CHATIDPARAM) || '', transcript: [] })
     const [transmitting, setTransmitting] = useState(false)
 
     useEffect(() => {
+        console.log(chat)
         if (chat.id) {
             Request<ChatMessageReply>(
                 '/api/chat/fetch-messages', {
@@ -147,7 +151,17 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
 
     const onSend = async (_:string, message: string) => {
         const cc = { ...chat, transcript: [...chat.transcript] }; // create a local copy and use that, otherwise methods below will act on stale state
-        cc.transcript.push({ id: 'temp', content: message, isBot: false, occurred: '' }, { id: 'temp-reply', content: '', isBot: true, occurred: '' })
+        cc.transcript.push({
+            id: 'temp',
+            content: message,
+            isBot: false,
+            occurred: '',
+        }, {
+            id: 'temp-reply',
+            content: '',
+            isBot: true,
+            occurred: '',
+        })
         setChat(cc)
         setTransmitting(true)
         await sendMsgAndListen({ chatId: cc.id, message, model, topic, subject }, {
@@ -195,6 +209,14 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
 
             <ChatHeader clearChat={clearChat} onClose={onClose}/>
             <OXColoredStripe />
+            <Center mt={'1rem'}>
+                <Text size='xs'>
+                    {chat.transcript[0]?.occurred ?
+                        dayjs(chat.transcript[0].occurred).format('ll LT') :
+                        null
+                    }
+                </Text>
+            </Center>
 
             <MainContainer style={{ height: '100%', border: 'none' }}>
                 <ChatContainer>
@@ -203,7 +225,6 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
                             position: 'single',
                             direction: 'incoming',
                             message: initialMessage({ topic, subject }),
-                            sentTime: "just now",
                             sender: 'Staxly',
                         }} />
                         {chat.transcript.map((msg, i) => makeMessage({ index: i, isFirst: i == 0, isLast: (i == chat.transcript.length - 1), message: msg }))}
@@ -221,8 +242,8 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
                 </ChatContainer>
             </MainContainer>
 
-            <Group bg='#DBF3F8' p='.5em 1em' position='apart'>
-                <Text size='xs' color='#026AA1'>
+            <Group bg='#DBF3F8' p='.5em 1em' justify='space-between'>
+                <Text size='xs' c='#026AA1'>
                     <Anchor href='' target='_blank'>
                         Terms
                     </Anchor>
@@ -235,14 +256,10 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
                         FAQ
                     </Anchor>
                 </Text>
-                <Anchor display='flex' underline color='#848484' size='xs' align='center'>
+                <Anchor href='https://together.ai/about' target='_blank' display='flex' underline='always' c='#848484' size='xs'>
                     Powered by together.ai&nbsp;<ExternalLink height={14} width={14} />
                 </Anchor>
             </Group>
         </Wrapper>
     )
-}
-
-const ChatFooter = () => {
-
 }

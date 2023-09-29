@@ -26,7 +26,7 @@ const ChatReview: React.FC<{chatId: string}> = ({ chatId }) => {
     return (
         <Box margin="lg" direction="column">
             <h3>{dayjs(firstMsg.occurred).format('MMM D, YYYY h:mma')} Model: { chat.model || 'unknown'}</h3>
-            <LoadingOverlay visible={query.isLoading} overlayBlur={2} />
+            <LoadingOverlay visible={query.isLoading} />
             {msgs.map(message => (
                 <Message
                     key={message.id}
