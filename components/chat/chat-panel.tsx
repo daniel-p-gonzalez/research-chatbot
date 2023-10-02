@@ -43,8 +43,8 @@ function makeMessage({ isFirst, isLast, message }: { index: number, isFirst: boo
                         {/*</Button>*/}
                         <LeaveFeedback />
                         <Group>
-                            <ThumbUp onClick={() => {alert('todo')}} color='#DBDBDB' />
-                            <ThumbDown onClick={() => {alert('todo')}} color='#DBDBDB' />
+                            <ThumbUp cursor='pointer' onClick={() => {alert('todo')}} color='#DBDBDB' />
+                            <ThumbDown cursor='pointer' onClick={() => {alert('todo')}} color='#DBDBDB' />
                         </Group>
                     </Group>
                 </ChatMessage.Footer>
@@ -255,9 +255,12 @@ export const ChatPanel = ({
                         FAQ
                     </Anchor>
                 </Text>
-                <Anchor href='https://together.ai/about' target='_blank' display='flex' underline='always' c='#848484' size='xs'>
-                    Powered by together.ai&nbsp;<ExternalLink height={14} width={14} />
-                </Anchor>
+                <Text size='xs' display='flex' c='#848484'>
+                    Powered by&nbsp;
+                    <Anchor href='https://together.ai/about' target='_blank' display='flex' underline='always' c='#848484' size='xs'>
+                        together.ai&nbsp;<ExternalLink  height={14} width={14} />
+                    </Anchor>
+                </Text>
             </Group>
         </Wrapper>
     )
