@@ -122,7 +122,6 @@ export const ChatPanel = ({
     const [transmitting, setTransmitting] = useState(false)
 
     useEffect(() => {
-        console.log(chat)
         if (chat.id) {
             Request<ChatMessageReply>(
                 '/api/chat/fetch-messages', {

@@ -1,5 +1,5 @@
 import styled from '@emotion/styled'
-import { searchParam, pushNewSearchParam } from '#lib/util'
+import { pushNewSearchParam, searchParam } from '#lib/util'
 import { ChatWindow } from './chat-window';
 import { useToggle } from '@nathanstitt/sundry/base'
 import { CHATIDPARAM } from '#lib/types'

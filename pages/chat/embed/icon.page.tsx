@@ -14,6 +14,7 @@ export const Page = () => {
     const [api] = useEmbedCommunication()
 
     const onClick = () => {
+        console.log(api)
         api?.openNewFrame({
             name: 'chat-window',
             srcURL: `${window.location.origin}/chat/embed/window`,

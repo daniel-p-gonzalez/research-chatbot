@@ -32,6 +32,7 @@ async function render(pageContext: PageContextClient) {
         root.render(content)
     } else {
         root = hydrateRoot(rootEl, content)
+        rootEl.classList.add('hydrated')
     }
 }
 

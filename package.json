@@ -14,7 +14,9 @@
     "build:server": "vite build",
     "build:embed": "parcel build --dist-dir dist/client/assets/static embed/embed.ts",
     "build:lambda": "yarn run esbuild --platform=node --outdir=dist --external:'@aws-sdk/*' --bundle server/*lambda.ts",
-    "build:all": "run-p build:server build:lambda build:embed"
+    "build:all": "run-p build:server build:lambda build:embed",
+    "test": "npx playwright install --with-deps && npx playwright test",
+    "test:ui": "npx playwright install --with-deps && npx playwright test --ui"
   },
   "dependencies": {
     "@aws-sdk/client-ssm": "^3.382.0",
