@@ -4,6 +4,8 @@
     isBot: boolean
     model?: string
     occurred: string
+     liked?: boolean
+     disliked?: boolean
 }
 
 

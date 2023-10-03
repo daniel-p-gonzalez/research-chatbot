@@ -21,7 +21,7 @@ import { OXColoredStripe } from "#components/ox-colored-stripe";
 import { ExternalLink, ThumbDown, ThumbUp } from "tabler-icons-react";
 import dayjs from "dayjs";
 
-function makeMessage({ isFirst, isLast, message }: { index: number, isFirst: boolean, isLast: boolean, message: TranscriptMessage }) {
+function makeMessage({ isFirst, isLast, message, transmitting }: { index: number, isFirst: boolean, isLast: boolean, message: TranscriptMessage, transmitting: boolean }) {
     return (
         <ChatMessage key={message.id} model={{
             position: isFirst ? 'single' : isLast ? 'last' : 'normal',
@@ -35,16 +35,14 @@ function makeMessage({ isFirst, isLast, message }: { index: number, isFirst: boo
                     </Tooltip>
                 </Flex>
             </ChatMessage.Header>
-            {message.isBot &&
+
+            {message.isBot && !transmitting &&
                 <ChatMessage.Footer>
                     <Group justify='space-between' w='100%'>
-                        {/*<Button c='#848484' size='xs' variant='transparent' style={{ textUnderlineOffset: '.25rem' }} td='underline'>*/}
-                        {/*    Leave Feedback*/}
-                        {/*</Button>*/}
                         <LeaveFeedback />
                         <Group>
-                            <ThumbUp cursor='pointer' onClick={() => {alert('todo')}} color='#DBDBDB' />
-                            <ThumbDown cursor='pointer' onClick={() => {alert('todo')}} color='#DBDBDB' />
+                            <ThumbDown cursor='pointer' onClick={() => {alert('todo')}} color={message.disliked ? '#CA2026' : '#DBDBDB'} />
+                            <ThumbUp cursor='pointer' onClick={() => {alert('todo')}} color={message.liked ? '#63A524' : '#DBDBDB'} />
                         </Group>
                     </Group>
                 </ChatMessage.Footer>
@@ -145,7 +143,7 @@ export const ChatPanel = ({
     if (!isOpen) return null
 
     const clearChat = () => {
-        setChat({ id: searchParam(CHATIDPARAM) || '', transcript: [] })
+        setChat({ id: '', transcript: [] })
     }
 
     const onSend = async (_:string, message: string) => {
@@ -226,7 +224,7 @@ export const ChatPanel = ({
                             message: initialMessage({ topic, subject }),
                             sender: 'Staxly',
                         }} />
-                        {chat.transcript.map((msg, i) => makeMessage({ index: i, isFirst: i == 0, isLast: (i == chat.transcript.length - 1), message: msg }))}
+                        {chat.transcript.map((msg, i) => makeMessage({ index: i, isFirst: i == 0, isLast: (i == chat.transcript.length - 1), message: msg, transmitting }))}
                     </MessageList>
 
                     <MessageInput

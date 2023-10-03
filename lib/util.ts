@@ -9,13 +9,13 @@ export const parseDate = (dt?: string) => {
 }
 
 
-export function searchParam(key: string): string | null {
+export function searchParam(key: string): string {
     if (!isBrowser()) {
-        return null
+        return ''
     }
 
     const params = new URLSearchParams(window.location.search)
-    return params.get(key)
+    return params.get(key) || ''
 }
 
 export function pushNewSearchParam(key: string, value: string | null) {
