@@ -1,6 +1,6 @@
 import { useEffect, PropsWithChildren, useState } from 'react'
 import 'iframe-resizer'
-import { ChatPanel } from '#components/chat-panel'
+import { ChatPanel } from '#components/chat/chat-panel'
 
 import { useEmbedCommunication } from './communication'
 
