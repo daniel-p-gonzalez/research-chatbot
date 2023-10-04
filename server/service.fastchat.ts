@@ -1,9 +1,9 @@
-import { SavedMessageModel, SavedChatModel, Message, messagesForChatId } from './data'
 import { RequestContext } from './request-context'
 import { getConfigValue, FASTCHAT_API_URL } from './config'
 import { fetchEventSource } from 'fetch-event-source-hperrin'
 import { PROMPT_TEXT_SUFFIX } from './prompts'
-import { InferenceMessage, InferenceContext } from '#lib/types'
+import { InferenceMessage, InferenceContext, SavedChatModel } from '#lib/types'
+
 
 class CompletedError extends Error {  }
 const MAX_ATTEMPTS = 3
@@ -104,24 +104,3 @@ export async function requestInference(ctx: InferenceContext) {
     return controller
 }
 
-export const inferenceForChat = async (
-    chat: SavedChatModel, message: SavedMessageModel, ctx: RequestContext,
-) => {
-    const transcript = (await messagesForChatId(chat.id)).slice(0, -2)
-
-    return requestInference({
-        ...ctx,
-        transcript,
-        onComplete(content) {
-            message.content = content
-            Message.update(message)
-            ctx.onComplete()
-        },
-        onProgress(content) {
-            message.content = content
-            Message.update(message)
-            ctx.onProgress({ msgId: message.id, content, isPending: true })
-        }
-    })
-
-}

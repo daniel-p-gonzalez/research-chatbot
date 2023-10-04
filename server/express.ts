@@ -19,7 +19,6 @@ async function startServer() {
     const app = express()
     app.use(express.text())
     app.use(express.json())
-    app.use(compression())
 
     // Express is only used in dev, in prod lambda's are used
     // We instantiate Vite's development server and integrate its middleware to our server.
@@ -48,7 +47,6 @@ async function startServer() {
         const chat = await addMessageToChat(new RequestContext(
             (updated) => {
                 res.write('data: ' + JSON.stringify(updated) + '\n\n');
-                res.flush()
             },
             (errorMsg?: string) => {
                 if (errorMsg) {

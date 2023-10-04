@@ -12,6 +12,8 @@ export const DynamoDBSchema = {
             created: { type: Date, readonly: true },
             id: { type: String, generate: 'ulid', readonly: true},
             model: { type: String },
+            topic: { type: String },
+            subject: { type: String },
         },
 
         Message: {

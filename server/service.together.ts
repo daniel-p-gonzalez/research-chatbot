@@ -1,7 +1,6 @@
-import { SavedMessageModel, SavedChatModel, Message, messagesForChatId } from './data'
 import { RequestContext } from './request-context'
 import { getConfigValue } from './config'
-import { InferenceMessage, InferenceContext } from '#lib/types'
+import { InferenceMessage, InferenceContext, SavedChatModel } from '#lib/types'
 
 class CompletedError extends Error {  }
 
@@ -97,28 +96,3 @@ export async function requestInference(ctx: InferenceContext) {
     return controller
 }
 
-export const inferenceForChat = async (
-    chat: SavedChatModel, message: SavedMessageModel, ctx: RequestContext,
-) => {
-
-    const msgs = await messagesForChatId(chat.id)
-
-    // the last two messages will be the one we're
-    const transcript = msgs.slice(0, -2)
-
-    return requestInference({
-        ...ctx,
-        transcript,
-        onComplete(content) {
-            message.content = content
-            Message.update(message)
-            ctx.onComplete()
-        },
-        onProgress(content) {
-            message.content = content
-            Message.update(message)
-            ctx.onProgress({ msgId: message.id, content, isPending: true })
-        }
-    })
-
-}
