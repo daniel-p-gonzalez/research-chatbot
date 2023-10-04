@@ -20,6 +20,8 @@ import { ChatHeader } from "#components/chat/chat-header";
 import { OXColoredStripe } from "#components/ox-colored-stripe";
 import { ExternalLink, ThumbDown, ThumbUp } from "tabler-icons-react";
 import dayjs from "dayjs";
+import { useStopwatch, useTimer } from 'react-timer-hook';
+import { Notifications, showNotification } from "@mantine/notifications";
 
 function makeMessage({ isFirst, isLast, message, transmitting }: { index: number, isFirst: boolean, isLast: boolean, message: TranscriptMessage, transmitting: boolean }) {
     return (
@@ -41,8 +43,19 @@ function makeMessage({ isFirst, isLast, message, transmitting }: { index: number
                     <Group justify='space-between' w='100%'>
                         <LeaveFeedback />
                         <Group>
-                            <ThumbDown cursor='pointer' onClick={() => {alert('todo')}} color={message.disliked ? '#CA2026' : '#DBDBDB'} />
-                            <ThumbUp cursor='pointer' onClick={() => {alert('todo')}} color={message.liked ? '#63A524' : '#DBDBDB'} />
+                            <ThumbDown cursor='pointer'
+                                onClick={() => {
+                                    showNotification({ message: <Text size='sm'>Thank you for your feedback! We&apos;ll be sure to review it as soon as possible. Staxly can make mistakes sometimes. <Anchor target="_blank" href="">Here&apos;s why.</Anchor></Text> })
+                                    // TODO Re-prompt chatbot
+                                }}
+                                color={message.disliked ? '#CA2026' : '#DBDBDB'}
+                            />
+                            <ThumbUp cursor='pointer'
+                                onClick={() => showNotification({
+                                    message: "Thank you for helping us improve Staxly!"
+                                })}
+                                color={message.liked ? '#63A524' : '#DBDBDB'}
+                            />
                         </Group>
                     </Group>
                 </ChatMessage.Footer>
@@ -204,8 +217,10 @@ export const ChatPanel = ({
                 <CloseButton onClick={() => onClose()} size="xl" title="Close chat window" />
             </Header>
 
+            <Notifications position='top-center' portalProps={{ target: '.react-draggable' }} />
             <ChatHeader clearChat={clearChat} onClose={onClose}/>
             <OXColoredStripe />
+            <AutoFeedback />
             <Center mt={'1rem'}>
                 <Text size='xs'>
                     {chat.transcript[0]?.occurred ?
@@ -262,4 +277,72 @@ export const ChatPanel = ({
             </Group>
         </Wrapper>
     )
+}
+
+const AutoFeedback = () => {
+    const [open, setOpen] = useState(false)
+    const {
+        totalSeconds,
+        seconds,
+        minutes,
+        hours,
+        days,
+        isRunning,
+        start,
+        pause,
+    } = useTimer({
+        expiryTimestamp: dayjs().add(15, 'minutes').toDate(),
+        autoStart: true ,
+        onExpire: () => setOpen(true)
+    });
+    // TODO Fetch persisted time and use it when we eventually store it
+    return (
+        <Drawer.Root size='lg' portalProps={{ target: '.react-draggable' }} position='bottom' opened={open} onClose={() => setOpen(false)}>
+            <Drawer.Overlay />
+            <Drawer.Content style={{ overflow: 'hidden' }}>
+                <Drawer.Header bg='#FFF' style={{ padding: 0, justifyContent: 'flex-end' }}>
+                    <Drawer.Title>
+                        <Button c='#848484'
+                                size='xs'
+                                variant='transparent'
+                                style={{ textUnderlineOffset: '.25rem' }}
+                                td='underline'
+                                onClick={() => setOpen(false)}
+                        >
+                            Return to chat
+                        </Button>
+                    </Drawer.Title>
+                </Drawer.Header>
+                <Drawer.Body p={0} h='100%' style={{ overflow: 'hidden' }}>
+                    {/* TODO Update qualtrics URL when the feedback survey is ready */}
+                    <QualtricsFeedback src='https://riceuniversity.co1.qualtrics.com/jfe/form/SV_bKM7QsMAw9HfeVU' />
+                </Drawer.Body>
+            </Drawer.Content>
+        </Drawer.Root>
+    )
+    // return null
+    // return (
+    //     <Drawer.Root size='lg' portalProps={{ target: '.react-draggable' }} position='bottom' opened={open} onClose={() => setOpen(false)}>
+    //         <Drawer.Overlay />
+    //         <Drawer.Content style={{ overflow: 'hidden' }}>
+    //             <Drawer.Header bg='#FFF' style={{ padding: 0, justifyContent: 'flex-end' }}>
+    //                 <Drawer.Title>
+    //                     <Button c='#848484'
+    //                             size='xs'
+    //                             variant='transparent'
+    //                             style={{ textUnderlineOffset: '.25rem' }}
+    //                             td='underline'
+    //                             onClick={() => setOpen(false)}
+    //                     >
+    //                         Return to chat
+    //                     </Button>
+    //                 </Drawer.Title>
+    //             </Drawer.Header>
+    //             <Drawer.Body p={0} h='100%' style={{ overflow: 'hidden' }}>
+    //                 {/* TODO Update qualtrics URL when the feedback survey is ready */}
+    //                 <QualtricsFeedback src='https://riceuniversity.co1.qualtrics.com/jfe/form/SV_bKM7QsMAw9HfeVU' />
+    //             </Drawer.Body>
+    //         </Drawer.Content>
+    //     </Drawer.Root>
+    // )
 }

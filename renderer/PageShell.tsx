@@ -1,11 +1,12 @@
 import React from 'react'
 import { PageContextProvider } from '#lib/page-context'
 import type { Layout, PageContext } from './types'
-import { ColorSchemeScript, createTheme, MantineProvider, useComputedColorScheme } from '@mantine/core';
+import { ColorSchemeScript, createTheme, MantineProvider } from '@mantine/core';
 import { Sidebar } from '#components/sidebar'
 import { GridLayout } from '#components/grid-layout';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import '@mantine/core/styles.css';
+import '@mantine/notifications/styles.css';
 
 export { PageShell }
 

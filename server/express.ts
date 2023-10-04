@@ -33,11 +33,6 @@ async function startServer() {
 
     app.use(vite.middlewares)
 
-    app.post('/api/chat/message/like', async (req, res) => {
-        console.log('Received message', req.body)
-        const ctx = req.body as MessageSendContext
-    })
-
     app.post('/api/chat/message', async (req, res) => {
         console.log('Received message', req.body)
         const ctx = req.body as MessageSendContext
