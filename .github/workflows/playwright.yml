@@ -17,8 +17,10 @@ jobs:
         node-version: 18
     - name: Install sudo
       run: apt-get update && apt-get install sudo
-    - name: setup-docker
-      uses: docker-practice/actions-setup-docker@v1
+    - name: Start DynamoDB in GitHub Actions
+      uses: rrainn/dynamodb-action@v3.0.0
+#    - name: setup-docker
+#      uses: docker-practice/actions-setup-docker@v1
     - name: Install dependencies
       run: yarn
     - name: Install Playwright Browsers
