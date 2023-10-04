@@ -6,3 +6,5 @@ dist/
 deploy/builds/
 .parcel-cache
 yarn-error.log
+evaluation/*xlsx
+evaluation/*csv

@@ -4,6 +4,7 @@ import 'dotenv/config'
 import OpenAIApi from 'openai'
 import { infer } from '../server/service'
 import dayjs from 'dayjs'
+import { countWordsAndSentences } from '#lib/string'
 import { capitalize } from '@nathanstitt/sundry/base'
 import Papa from 'papaparse'
 import spr from 'sprintf'
@@ -47,7 +48,8 @@ async function evaluateGroup(group: EvalGroup) {
     for (let question of questions) {
         console.log(question)
 
-        const scores = await Promise.all(Object.entries(MODELS).map(async ([ id, key ]) => {
+        const scores = await Promise.all(ModelIds.map(async (id) => {
+            const key = MODELS[id]
 
             const response = await infer({
                 transcript: [],
@@ -56,6 +58,7 @@ async function evaluateGroup(group: EvalGroup) {
                 topic: group.topic,
                 subject: group.subject,
             })
+
             const gpt = await openai.chat.completions.create({
                 model: 'gpt-4',
                 messages: [
@@ -155,6 +158,7 @@ evaluate(evals).then((grades) => {
         let first = true
         for ( const q of questions ) {
             const result: any = {
+                type,
                 question: q.question
             }
             if (!first) {
@@ -163,8 +167,13 @@ evaluate(evals).then((grades) => {
             report += `| | **${esc(q.question)}** | \n`
             for (const modelId of sortedModels) {
                 const check = q.scores[modelId]
+                const {words, sentences} = countWordsAndSentences(check.response)
                 report += `| ${modelId} <br> ${check.score}pts | ${esc(check.response)} |\n`
-                result[modelId] = check.response
+
+                result[`${modelId}_score`] = check.score
+                result[`${modelId}_sentences`] = sentences
+                result[`${modelId}_words`] = words
+                result[`${modelId}_response`] = check.response
             }
             first = false
             results.push(result)
