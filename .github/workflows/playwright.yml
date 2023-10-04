@@ -18,7 +18,7 @@ jobs:
     - name: Install dependencies
       run: yarn
     - name: Install docker
-      run: apt-get install sudo && sudo apt-get update && sudo apt install docker.io
+      run: apt-get update && apt install docker.io
     - name: Install Playwright Browsers
       run: npx playwright install --with-deps
     - name: Run Playwright tests
