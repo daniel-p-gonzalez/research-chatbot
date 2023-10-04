@@ -36,7 +36,7 @@ resource "null_resource" "chatbot_assets" {
   }
 
   provisioner "local-exec" {
-    command = "s5cmd sync --size-only ${path.module}/../dist/client/ s3://${aws_s3_bucket.chatbot_assets.id}/" # echo ${self.private_ip} >> private_ips.txt"
+    command = "yarn run build:server && s5cmd sync --size-only ${path.module}/../dist/client/ s3://${aws_s3_bucket.chatbot_assets.id}/" # echo ${self.private_ip} >> private_ips.txt"
   }
 }
 
@@ -113,8 +113,8 @@ resource "aws_cloudfront_distribution" "chatbot" {
 
 
   origin {
-    domain_name = replace(module.fetch_chat_messages_lambda.lambda_function_url, "/^https?://([^/]*).*/", "$1")
-    origin_id   = module.fetch_chat_messages_lambda.lambda_function_url_id
+    domain_name = replace(module.chatbot_message_lambda.lambda_function_url, "/^https?://([^/]*).*/", "$1")
+    origin_id   = module.chatbot_message_lambda.lambda_function_url_id
     custom_origin_config {
       http_port                = 80
       https_port               = 443
@@ -126,31 +126,15 @@ resource "aws_cloudfront_distribution" "chatbot" {
       ]
     }
   }
-
   origin {
-    domain_name = replace(module.chat_message_lambda.lambda_function_url, "/^https?://([^/]*).*/", "$1")
-    origin_id   = module.chat_message_lambda.lambda_function_url_id
+    domain_name = replace(module.chatbot_api_lambda.lambda_function_url, "/^https?://([^/]*).*/", "$1")
+    origin_id   = module.chatbot_api_lambda.lambda_function_url_id
     custom_origin_config {
       http_port                = 80
       https_port               = 443
       origin_keepalive_timeout = 5
       origin_protocol_policy   = "https-only"
-      origin_read_timeout      = 30
-      origin_ssl_protocols = [
-        "TLSv1.2",
-      ]
-    }
-  }
-
-  origin {
-    domain_name = replace(module.admin_lambda.lambda_function_url, "/^https?://([^/]*).*/", "$1")
-    origin_id   = module.admin_lambda.lambda_function_url_id
-    custom_origin_config {
-      http_port                = 80
-      https_port               = 443
-      origin_keepalive_timeout = 5
-      origin_protocol_policy   = "https-only"
-      origin_read_timeout      = 30
+      origin_read_timeout      = 60
       origin_ssl_protocols = [
         "TLSv1.2",
       ]
@@ -181,21 +165,16 @@ resource "aws_cloudfront_distribution" "chatbot" {
   }
 
   ordered_cache_behavior {
-    path_pattern     = "/api/admin/chats"
+    path_pattern     = "/api/chat/message"
     allowed_methods  = ["HEAD", "DELETE", "POST", "GET", "OPTIONS", "PUT", "PATCH"]
     cached_methods   = ["GET", "HEAD"]
-    target_origin_id = module.admin_lambda.lambda_function_url_id
+    target_origin_id = module.chatbot_message_lambda.lambda_function_url_id
 
     compress               = true
     default_ttl            = 0
     max_ttl                = 0
     min_ttl                = 0
     viewer_protocol_policy = "redirect-to-https"
-
-    # lambda_function_association {
-    #   event_type = "origin-request"
-    #   lambda_arn = data.aws_lambda_function.sso_cookie_decoder.qualified_arn
-    # }
 
     forwarded_values {
       headers = [
@@ -212,10 +191,10 @@ resource "aws_cloudfront_distribution" "chatbot" {
   }
 
   ordered_cache_behavior {
-    path_pattern     = "/api/chat/fetch-messages"
+    path_pattern     = "/api/*"
     allowed_methods  = ["HEAD", "DELETE", "POST", "GET", "OPTIONS", "PUT", "PATCH"]
     cached_methods   = ["GET", "HEAD"]
-    target_origin_id = module.fetch_chat_messages_lambda.lambda_function_url_id
+    target_origin_id = module.chatbot_api_lambda.lambda_function_url_id
 
     compress               = true
     default_ttl            = 0
@@ -227,8 +206,8 @@ resource "aws_cloudfront_distribution" "chatbot" {
       headers = [
         "Origin",
       ]
-      query_string            = false
-      query_string_cache_keys = []
+      query_string            = true
+      query_string_cache_keys = ["end", "start"]
 
       cookies {
         forward           = "all"
@@ -237,32 +216,6 @@ resource "aws_cloudfront_distribution" "chatbot" {
     }
   }
 
-  ordered_cache_behavior {
-    path_pattern     = "/api/chat/message"
-    allowed_methods  = ["HEAD", "DELETE", "POST", "GET", "OPTIONS", "PUT", "PATCH"]
-    cached_methods   = ["GET", "HEAD"]
-    target_origin_id = module.chat_message_lambda.lambda_function_url_id
-
-
-    compress               = true
-    default_ttl            = 0
-    max_ttl                = 0
-    min_ttl                = 0
-    viewer_protocol_policy = "redirect-to-https"
-
-    forwarded_values {
-      headers = [
-        "Origin",
-      ]
-      query_string            = false
-      query_string_cache_keys = []
-
-      cookies {
-        forward           = "all"
-        whitelisted_names = []
-      }
-    }
-  }
 
   viewer_certificate {
     acm_certificate_arn = aws_acm_certificate.chatbot.arn

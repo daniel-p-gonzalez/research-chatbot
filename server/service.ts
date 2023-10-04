@@ -1,18 +1,6 @@
-import { InferenceContext } from '#lib/types'
-import type { SavedChatModel, SavedMessageModel } from './data'
+import { InferenceContext, SavedChatModel, SavedMessageModel } from '#lib/types'
+import { messagesForChatId, Message } from './data'
 import { RequestContext } from './request-context'
-
-
-export const inferenceForChat = async (chat: SavedChatModel, message: SavedMessageModel, ctx: RequestContext) => {
-    if (ctx.model == 'self-hosted' || ctx.model == 'quiz') {
-        const { inferenceForChat } = await import('./service.fastchat.js')
-        return inferenceForChat(chat, message, ctx)
-    }
-    const { inferenceForChat } = await import('./service.together.js')
-    return inferenceForChat(chat, message, ctx)
-}
-
-
 
 export const requestInference = async (ctx: InferenceContext) => {
     let requestInference: null | ((ctx: InferenceContext) => Promise<AbortController | void>) = null
@@ -31,9 +19,7 @@ export const requestInference = async (ctx: InferenceContext) => {
 }
 
 
-export type PromiseifiedInferenceContext = Omit<InferenceContext, 'onProgress' | 'onComplete'> & {
-
-}
+export type PromiseifiedInferenceContext = Omit<InferenceContext, 'onProgress' | 'onComplete'>
 
 export const infer = async (ctx: PromiseifiedInferenceContext): Promise<string> => {
     return new Promise(onComplete => {
@@ -45,4 +31,27 @@ export const infer = async (ctx: PromiseifiedInferenceContext): Promise<string> 
             },
         })
     })
+}
+
+
+export async function inferenceForChat(
+     chat: SavedChatModel, botMessage: SavedMessageModel, ctx: RequestContext,
+) {
+    const transcript = (await messagesForChatId(chat.id)).slice(0, -2)
+
+    return requestInference({
+        ...ctx,
+        transcript,
+        onComplete(content) {
+            botMessage.content = content
+            Message.update(botMessage)
+            ctx.onComplete()
+        },
+        onProgress(content) {
+            botMessage.content = content
+            Message.update(botMessage)
+            ctx.onProgress({ msgId: botMessage.id, content, isPending: true })
+        }
+    })
+
 }

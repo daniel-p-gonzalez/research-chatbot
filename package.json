@@ -13,10 +13,11 @@
     "typecheck": "tsc --noemit",
     "build:server": "vite build",
     "build:embed": "parcel build --dist-dir dist/client/assets/static embed/embed.ts",
-    "build:lambda": "yarn run esbuild --platform=node --outdir=dist --external:'@aws-sdk/*' --bundle server/*lambda.ts",
-    "build:all": "run-p build:server build:lambda build:embed",
     "test": "npx playwright install --with-deps && npx playwright test",
-    "test:ui": "npx playwright install --with-deps && npx playwright test --ui"
+    "test:ui": "npx playwright install --with-deps && npx playwright test --ui",
+    "build:lambda_api": "yarn run esbuild --platform=node --outdir=dist/lambda_api --external:'@aws-sdk/*' --bundle server/lambda_api.ts",
+    "build:lambda_chat": "yarn run esbuild --platform=node --outdir=dist/lambda_chat --external:'@aws-sdk/*' --bundle server/lambda_chat.ts",
+    "build:all": "run-p build:server build:lambda build:embed"
   },
   "dependencies": {
     "@aws-sdk/client-ssm": "^3.382.0",
@@ -41,6 +42,7 @@
     "@types/js-yaml": "^4.0.6",
     "@types/lodash-es": "^4.17.8",
     "@types/node": "^18.11.9",
+    "@types/papaparse": "^5.3.9",
     "@types/react": "^18.0.8",
     "@types/react-dom": "^18.0.3",
     "@types/sprintf": "^0.1.0",
@@ -74,6 +76,7 @@
     "node-fetch": "^3.3.2",
     "npm-run-all": "^4.1.5",
     "openai": "^4.8.0",
+    "papaparse": "^5.4.1",
     "parcel": "^2.9.3",
     "penpal": "^6.2.2",
     "react": "^18.2.0",
