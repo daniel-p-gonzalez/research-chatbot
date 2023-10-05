@@ -1,4 +1,4 @@
-import {SSMClient, GetParametersCommand} from "@aws-sdk/client-ssm"
+import { SSMClient, GetParametersCommand } from "@aws-sdk/client-ssm"
 
 export const IS_PROD = process.env.NODE_ENV === 'production'
 
