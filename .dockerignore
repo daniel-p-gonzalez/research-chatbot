@@ -1,0 +1,11 @@
+node_modules
+Dockerfile
+docker*.yml
+.git
+.gitignore
+.config
+.npm
+README.md
+**/*dist
+**/*logs
+.idea

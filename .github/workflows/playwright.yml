@@ -19,8 +19,6 @@ jobs:
       uses: docker/build-push-action@v3
       with:
         context: .
-    - name: Test Docker
-      run: yarn run test-docker
     - name: Install dependencies
       run: yarn
     - name: Install Playwright Browsers

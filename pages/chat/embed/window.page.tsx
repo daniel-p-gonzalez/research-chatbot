@@ -1,4 +1,4 @@
-import { useEffect, PropsWithChildren, useState } from 'react'
+import { PropsWithChildren } from 'react'
 import 'iframe-resizer'
 import { ChatPanel } from '#components/chat-panel'
 
@@ -16,7 +16,7 @@ export const Page = () => {
         return null
     }
 
-console.log(context)
+    console.log(context)
     return (
         <ChatPanel
             height="100vh"

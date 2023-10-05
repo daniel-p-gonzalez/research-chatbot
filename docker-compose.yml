@@ -1,0 +1,24 @@
+version: "3.8"
+services:
+#  dynamodb:
+#    image: "amazon/dynamodb-local:latest"
+#    container_name: TCBLocalDynamoDB
+#    ports:
+#      - "8400:8000"
+#    volumes:
+#      - dynamodata:/home/dynamodblocal
+#    command: "-jar DynamoDBLocal.jar -sharedDb -dbPath ."
+#    environment:
+#      - AWS_ACCESS_KEY_ID=""
+#      - AWS_SECRET_ACCESS_KEY=""
+#      - AWS_SESSION_TOKEN=""
+#      - AWS_DEFAULT_REGION=us-east-1
+  server:
+    container_name: server
+    build:
+      context: .
+      dockerfile: ./docker/server/Dockerfile
+    ports:
+      - "3000:3000"
+volumes:
+  dynamodata: {}
