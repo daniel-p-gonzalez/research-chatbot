@@ -16,7 +16,7 @@ jobs:
       with:
         node-version: 18
     - name: Test Docker
-      run: yarn
+      run: yarn run test-docker
     - name: Install dependencies
       run: yarn
     - name: Install Playwright Browsers
