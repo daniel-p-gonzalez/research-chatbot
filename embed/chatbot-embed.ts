@@ -1,8 +1,6 @@
 import { iframeResizer } from 'iframe-resizer'
 import { connectToChild, AsyncMethodReturns } from 'penpal';
-
 import { ParentApi, ChildApi, FrameOptions, Size } from './api'
-
 
 const apiMethods = (embed: Embed) => ({
     openNewFrame,
@@ -37,8 +35,8 @@ class DraggableResizer {
 
         const wrapper = document.createElement('div')
         this.container = wrapper
-      
-      
+
+
         const grabber = document.createElement('div')
         grabber.style.cursor = 'grab'
         grabber.style.display = 'flex'
@@ -229,7 +227,7 @@ function openNewFrame(opts: FrameOptions) {
 openNewFrame({
     id: 'chatbot-icon-embed',
     embedLocation: 'body',
-    srcURL: process.env.PUBLIC_ENV__CHAT_URL ||  'http://localhost:3000/chat/embed/icon',
+    srcURL: process.env.PUBLIC_ENV__CHAT_URL || 'http://localhost:3000/chat/embed/icon',
     position: {
         position: 'absolute',
         right: '30px',

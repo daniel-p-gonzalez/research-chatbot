@@ -5,12 +5,11 @@
 //  - To use your path aliases defined in your vite.config.js, you need to tell Node.js about them, see https://vike.dev/path-aliases
 
 import express from 'express'
-import compression from 'compression'
-import { renderPage } from 'vike/server'
 import 'dotenv/config'
 import { root } from './root.js'
 import { RequestContext } from './request-context.js'
 import type { MessageSendContext } from '#lib/types'
+import { renderPage } from "vike/server";
 
 
 startServer()

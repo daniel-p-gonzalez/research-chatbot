@@ -11,13 +11,12 @@
     "lint": "eslint",
     "pf": "run-p -c typecheck lint",
     "typecheck": "tsc --noemit",
-    "build:server": "vite build",
     "test": "npx playwright install --with-deps && npx playwright test",
+    "build:server": "vite build",
     "build:embed": "parcel build --dist-dir dist/client/assets/static embed/chatbot-embed.ts",
     "build:lambda_api": "yarn run esbuild --platform=node --outdir=dist/lambda_api --external:'@aws-sdk/*' --bundle server/lambda_api.ts",
     "build:lambda_chat": "yarn run esbuild --platform=node --outdir=dist/lambda_chat --external:'@aws-sdk/*' --bundle server/lambda_chat.ts",
-    "build:client": "run-s build:server build:embed",
-    "build:all": "run-p build:server build:lambda build:embed"
+    "build:client": "run-s build:server build:embed"
   },
   "dependencies": {
     "@aws-sdk/client-ssm": "^3.382.0",
@@ -93,7 +92,7 @@
     "tsx": "^3.13.0",
     "typescript": "^5.1.6",
     "vite": "^4.0.3",
-    "vike": "^0.4.133"
+    "vike": "^0.4.142"
   },
   "type": "module",
   "devDependencies": {

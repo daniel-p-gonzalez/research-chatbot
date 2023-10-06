@@ -18,14 +18,16 @@ import {
     Anchor,
     Button,
     Center,
-    CloseButton, Container,
+    CloseButton,
     Drawer,
     Flex,
     Group,
     Image,
     Select,
     Stack,
-    Text, Textarea, Title,
+    Text,
+    Textarea,
+    Title,
     Tooltip
 } from '@mantine/core';
 import { useLocalstorageState } from '@nathanstitt/sundry/base';
@@ -33,7 +35,7 @@ import { ChatHeader } from "#components/chat/chat-header";
 import { OXColoredStripe } from "#components/ox-colored-stripe";
 import { ExternalLink, ThumbDown, ThumbUp } from "tabler-icons-react";
 import dayjs from "dayjs";
-import { useStopwatch, useTimer } from 'react-timer-hook';
+import { useTimer } from 'react-timer-hook';
 import { Notifications, showNotification } from "@mantine/notifications";
 import Staxly from "#components/assets/staxly.svg";
 
@@ -83,8 +85,8 @@ const QualtricsFeedback = styled.iframe({
     width: '100%',
 })
 
-const LeaveFeedback: FC<{ message: TranscriptMessage }> = (message) => {
-    console.log(message);
+const LeaveFeedback: FC<{ message: TranscriptMessage }> = ({ message }) => {
+    console.log(message.chatId);
     const [open, setOpen] = useState(false);
     const submitFeedback = () => {
         Request<ChatMessageReply>(
@@ -207,11 +209,13 @@ export const ChatPanel = ({
         const cc = { ...chat, transcript: [...chat.transcript] }; // create a local copy and use that, otherwise methods below will act on stale state
         cc.transcript.push({
             id: 'temp',
+            chatId: "",
             content: message,
             isBot: false,
             occurred: '',
         }, {
             id: 'temp-reply',
+            chatId: "",
             content: '',
             isBot: true,
             occurred: '',

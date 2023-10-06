@@ -58,10 +58,10 @@ services:
       AWS_SECRET_ACCESS_KEY: FAKEKEY
       AWS_DEFAULT_REGION: local-env
       DYNAMO_HOST: dynamodb
-#     Add dynamo_host variable
     ports:
       - "3000:3000"
       - "24678:24678"
+      - "8233:8233"
     volumes:
       - ./:/app
       - ignore:/app/node_modules/

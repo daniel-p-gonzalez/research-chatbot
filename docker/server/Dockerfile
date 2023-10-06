@@ -1,9 +1,10 @@
 FROM node:slim
 WORKDIR /app
-COPY package.json ./
-COPY yarn.lock ./
-RUN yarn
 COPY . .
+RUN yarn install --frozen-lockfile
 
 EXPOSE 3000
-CMD ["yarn", "start"]
+EXPOSE 8233
+#CMD yarn run server:express
+#CMD yarn run server:embed
+CMD yarn run start
