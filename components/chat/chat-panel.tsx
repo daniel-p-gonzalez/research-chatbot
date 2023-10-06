@@ -14,7 +14,20 @@ import { sendMsgAndListen } from '#lib/send-and-listen'
 import { useEffect, useState } from 'react'
 import { Request } from '#lib/request'
 import { Box } from 'boxible'
-import { Anchor, Button, Center, CloseButton, Drawer, Flex, Group, Select, Text, Tooltip } from '@mantine/core';
+import {
+    Anchor,
+    Button,
+    Center,
+    CloseButton,
+    Drawer,
+    Flex,
+    Group,
+    Image,
+    Select,
+    Stack,
+    Text,
+    Tooltip
+} from '@mantine/core';
 import { useLocalstorageState } from '@nathanstitt/sundry/base';
 import { ChatHeader } from "#components/chat/chat-header";
 import { OXColoredStripe } from "#components/ox-colored-stripe";
@@ -22,6 +35,7 @@ import { ExternalLink, ThumbDown, ThumbUp } from "tabler-icons-react";
 import dayjs from "dayjs";
 import { useStopwatch, useTimer } from 'react-timer-hook';
 import { Notifications, showNotification } from "@mantine/notifications";
+import Staxly from "#components/assets/staxly.svg";
 
 function makeMessage({ isFirst, isLast, message, transmitting }: { index: number, isFirst: boolean, isLast: boolean, message: TranscriptMessage, transmitting: boolean }) {
     return (
@@ -89,8 +103,12 @@ const LeaveFeedback = () => {
                             </Button>
                         </Drawer.Title>
                     </Drawer.Header>
-                    <Drawer.Body p={0} h='100%' style={{ overflow: 'hidden' }}>
-                        <QualtricsFeedback src='https://riceuniversity.co1.qualtrics.com/jfe/form/SV_bKM7QsMAw9HfeVU' />
+                        <Stack>
+                            <Image src={Staxly} height={40} width={40} mt={10} alt='Staxly Logo' />
+                        </Stack>
+                    {/*<Drawer.Body p={0} h='100%' style={{ overflow: 'hidden' }}>*/}
+                    <Drawer.Body>
+
                     </Drawer.Body>
                 </Drawer.Content>
             </Drawer.Root>

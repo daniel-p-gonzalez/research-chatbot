@@ -67,6 +67,10 @@ async function startServer() {
         }) + '\n\n');
     })
 
+    app.post('/api/chat/', async (req, res) => {
+        res.status(200)
+    })
+
     app.get('/api/admin/chats', async (req, res) => {
         const { chatsBetweenDates } = await vite.ssrLoadModule('#server/conversation.ts', { fixStacktrace: true })
         res.json({ chats: await chatsBetweenDates(req.query.start, req.query.end) })
