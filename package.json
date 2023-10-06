@@ -14,6 +14,7 @@
     "build:server": "vite build",
     "build:embed": "parcel build --dist-dir dist/client/assets/static embed/embed.ts",
     "test": "npx playwright install --with-deps && npx playwright test",
+    "test-docker": "docker compose run npx playwright install --with-deps && npx playwright test",
     "test:ui": "npx playwright install --with-deps && npx playwright test --ui",
     "build:lambda_api": "yarn run esbuild --platform=node --outdir=dist/lambda_api --external:'@aws-sdk/*' --bundle server/lambda_api.ts",
     "build:lambda_chat": "yarn run esbuild --platform=node --outdir=dist/lambda_chat --external:'@aws-sdk/*' --bundle server/lambda_chat.ts"

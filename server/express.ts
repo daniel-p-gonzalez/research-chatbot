@@ -27,7 +27,12 @@ async function startServer() {
     const viteImp = await import('vite')
     const vite = await viteImp.createServer({
         root,
-        server: { middlewareMode: true }
+        server: {
+            hmr: {
+                clientPort: 24678,
+            },
+            middlewareMode: true,
+        }
     })
 
     app.use(vite.middlewares)

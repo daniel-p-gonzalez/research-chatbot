@@ -52,7 +52,7 @@ function makeMessage({ isFirst, isLast, message, transmitting }: { index: number
                             />
                             <ThumbUp cursor='pointer'
                                 onClick={() => showNotification({
-                                    message: "Thank you for helping us improve Staxly!"
+                                    message: "ASDF Thank you for helping us improve Staxly!"
                                 })}
                                 color={message.liked ? '#63A524' : '#DBDBDB'}
                             />
