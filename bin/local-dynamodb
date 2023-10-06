@@ -5,18 +5,18 @@ TABLE=TutorChatBot
 
 export AWS_PAGER="" # silence cli using "less" to display output
 
-LOCAL_PORT=8400
+LOCAL_PORT=8000
 
-docker ps -f "name=$CONTAINER" --format '{{.Names}}' | grep -q $CONTAINER
-if [[ $? == 0 ]]; then
-  docker stop $CONTAINER
-fi
-
-docker run -d --rm -p $LOCAL_PORT:8000 \
-  --name $CONTAINER \
-  amazon/dynamodb-local \
-  -jar DynamoDBLocal.jar -sharedDb
-sleep 3
+#docker ps -f "name=$CONTAINER" --format '{{.Names}}' | grep -q $CONTAINER
+#if [[ $? == 0 ]]; then
+#  docker stop $CONTAINER
+#fi
+#
+#docker run -d --rm -p $LOCAL_PORT:8000 \
+#  --name $CONTAINER \
+#  amazon/dynamodb-local \
+#  -jar DynamoDBLocal.jar -sharedDb
+#sleep 3
 
 aws dynamodb list-tables --endpoint-url http://localhost:$LOCAL_PORT | grep -q $TABLE
 if [[ $? != 0 ]]; then

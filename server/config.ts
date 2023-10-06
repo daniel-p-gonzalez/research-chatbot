@@ -8,7 +8,13 @@ export async function getConfigValue(path: string, decryption = false) {
     const envValue = process.env[path.toUpperCase()]
     if (envValue != null ) return envValue
 
-    const client = new SSMClient({ region: process.env.AWS_REGION || 'us-east-1' })
+    const client = new SSMClient({
+        region: process.env.AWS_REGION || 'us-east-1',
+        credentials: {
+            accessKeyId: "ASDF",
+            secretAccessKey: "ASDF"
+        }
+    })
     const paths = [
         `/research/chatbot/${ENV_NAME}/${path}`,
         `/research/chatbot/all/${path}`,
