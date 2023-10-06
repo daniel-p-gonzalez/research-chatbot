@@ -1,6 +1,6 @@
 node_modules
-Dockerfile
-docker*.yml
+#Dockerfile
+#docker*.yml
 .git
 .gitignore
 .config
