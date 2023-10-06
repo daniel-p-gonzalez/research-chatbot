@@ -22,6 +22,7 @@ aws dynamodb list-tables --endpoint-url http://localhost:$LOCAL_PORT | grep -q $
 if [[ $? != 0 ]]; then
 
     echo 'add table'
+    # Make sure any updates
     aws dynamodb create-table \
         --endpoint-url http://localhost:$LOCAL_PORT \
         --table-name $TABLE \

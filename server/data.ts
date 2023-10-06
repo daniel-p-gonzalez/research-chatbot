@@ -12,7 +12,7 @@ let options: DynamoDBClientConfig = {
 if (!IS_PROD) {
     options = {
         ...options,
-        endpoint: 'http://dynamodb:8000',
+        endpoint: `http://${process.env.DYNAMO_HOST}:8000`,
         region: 'local-env',
         credentials: {
             secretAccessKey: "ASDF",

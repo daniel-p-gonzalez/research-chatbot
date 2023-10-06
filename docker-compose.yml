@@ -1,20 +1,5 @@
 version: "3.8"
 services:
-#  dynamodb:
-#    image: amazon/dynamodb-local
-#    networks:
-#      - chatbot
-#    restart: always
-#    healthcheck:
-#      test: [ "CMD-SHELL", "curl -f http://localhost:8000/shell/ || exit 1" ]
-#      interval: 1s
-#      timeout: 10s
-#      retries: 3
-#    command: -jar DynamoDBLocal.jar -sharedDb -dbPath .
-#    ports:
-#      - "8000:8000"
-#    expose:
-#      - "8000"
   dynamodb:
     image: "amazon/dynamodb-local:latest"
     restart: always
@@ -23,9 +8,8 @@ services:
     ports:
       - "8000:8000"
     environment:
-      AWS_ACCESS_KEY_ID: ASDF
-      AWS_SECRET_ACCESS_KEY: ASDF
-#      AWS_SESSION_TOKEN: ""
+      AWS_ACCESS_KEY_ID: FAKEKEY
+      AWS_SECRET_ACCESS_KEY: FAKEKEY
       AWS_DEFAULT_REGION: local-env
     expose:
       - "8000"
@@ -34,8 +18,8 @@ services:
       - dynamodb
     image: amazon/aws-cli
     environment:
-      AWS_ACCESS_KEY_ID: ASDF
-      AWS_SECRET_ACCESS_KEY: ASDF
+      AWS_ACCESS_KEY_ID: FAKEKEY
+      AWS_SECRET_ACCESS_KEY: FAKEKEY
     command: >-
       dynamodb create-table 
         --region local-env 
@@ -70,9 +54,11 @@ services:
       context: .
       dockerfile: ./docker/server/Dockerfile
     environment:
-      AWS_ACCESS_KEY_ID: ASDF
-      AWS_SECRET_ACCESS_KEY: ASDF
+      AWS_ACCESS_KEY_ID: FAKEKEY
+      AWS_SECRET_ACCESS_KEY: FAKEKEY
       AWS_DEFAULT_REGION: local-env
+      DYNAMO_HOST: dynamodb
+#     Add dynamo_host variable
     ports:
       - "3000:3000"
       - "24678:24678"

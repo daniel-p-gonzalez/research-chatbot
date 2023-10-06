@@ -67,7 +67,22 @@ async function startServer() {
         }) + '\n\n');
     })
 
-    app.post('/api/chat/', async (req, res) => {
+    app.post('/api/chat/feedback', async (req, res) => {
+        const { chatId } = req.body
+        const { findChat, chatTranscript } = await vite.ssrLoadModule('#server/conversation.ts', { fixStacktrace: true })
+        const chat = await findChat(chatId)
+        res.json({
+            ...chat,
+            transcript: await chatTranscript(chat)
+        })
+        // res.status(200).send()
+    })
+
+    app.post('/api/chat/like', async (req, res) => {
+        res.status(200)
+    })
+
+    app.post('/api/chat/dislike', async (req, res) => {
         res.status(200)
     })
 

@@ -1,11 +1,12 @@
- export type TranscriptMessage = {
+export type TranscriptMessage = {
     id: string
+    chatId: string
     content: string
     isBot: boolean
     model?: string
     occurred: string
-     liked?: boolean
-     disliked?: boolean
+    liked?: boolean
+    disliked?: boolean
 }
 
 

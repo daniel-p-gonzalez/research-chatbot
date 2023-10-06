@@ -11,8 +11,8 @@ export async function getConfigValue(path: string, decryption = false) {
     const client = new SSMClient({
         region: process.env.AWS_REGION || 'us-east-1',
         credentials: {
-            accessKeyId: "ASDF",
-            secretAccessKey: "ASDF"
+            accessKeyId: "FAKEKEY",
+            secretAccessKey: "FAKEKEY"
         }
     })
     const paths = [

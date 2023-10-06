@@ -11,7 +11,7 @@ import { CHATIDPARAM, ChatMessageReply, DEFAULT_MODEL, TranscriptMessage } from 
 import { pushNewSearchParam, searchParam } from '#lib/util'
 import { initialMessage } from '#lib/chat'
 import { sendMsgAndListen } from '#lib/send-and-listen'
-import { useEffect, useState } from 'react'
+import { FC, useEffect, useState } from 'react'
 import { Request } from '#lib/request'
 import { Box } from 'boxible'
 import {
@@ -55,7 +55,7 @@ function makeMessage({ isFirst, isLast, message, transmitting }: { index: number
             {message.isBot && !transmitting &&
                 <ChatMessage.Footer>
                     <Group justify='space-between' w='100%'>
-                        <LeaveFeedback />
+                        <LeaveFeedback message={message}/>
                         <Group>
                             <ThumbDown cursor='pointer'
                                 onClick={() => {
@@ -83,8 +83,25 @@ const QualtricsFeedback = styled.iframe({
     width: '100%',
 })
 
-const LeaveFeedback = () => {
+const LeaveFeedback: FC<{ message: TranscriptMessage }> = (message) => {
+    console.log(message);
     const [open, setOpen] = useState(false);
+    const submitFeedback = () => {
+        Request<ChatMessageReply>(
+            '/api/chat/feedback', {
+                method: 'POST',
+                json: { chatId: message.chatId }
+            }
+        ).then((reply) => {
+            console.log(reply)
+            // if (reply.error) {
+            //     console.warn(reply.error)
+            // } else {
+            //     setChat(reply)
+            // }
+        })
+        setOpen(false)
+    }
     return (
         <>
             <Drawer.Root size='sm' portalProps={{ target: '.react-draggable' }} position='bottom' opened={open} onClose={() => setOpen(false)}>
@@ -104,19 +121,16 @@ const LeaveFeedback = () => {
                         </Drawer.Title>
                     </Drawer.Header>
 
-                    {/*<Drawer.Body p={0} h='100%' style={{ overflow: 'hidden' }}>*/}
                     <Drawer.Body>
-                        <Stack gap='lg'>
+                        <Stack justify='space-between'>
                             <Stack align='center'>
                                 <Image src={Staxly} h={50} w={50} alt='Staxly Logo' />
                                 <Title order={5}>Share your feedback with us</Title>
                             </Stack>
 
                             <Stack>
-                                <Textarea name='feedback' maxRows={12} minRows={12}>
-
-                                </Textarea>
-                                <Button color='orange'>
+                                <Textarea rows={5} name='feedback'/>
+                                <Button color='orange' onClick={() => submitFeedback()}>
                                     Submit & Continue chat
                                 </Button>
                             </Stack>
