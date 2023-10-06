@@ -1,6 +1,6 @@
 import { PropsWithChildren } from 'react'
 import 'iframe-resizer'
-import { ChatPanel } from '#components/chat-panel'
+import { ChatPanel } from '#components/chat/chat-panel'
 
 import { useEmbedCommunication } from './communication'
 
@@ -8,6 +8,7 @@ export const Layout: React.FC<PropsWithChildren> = ({ children }) => {
     return <>{children}</>
 }
 
+export const withoutGTM = true
 
 export const Page = () => {
     const [api, context] = useEmbedCommunication()

@@ -36,7 +36,7 @@ resource "null_resource" "chatbot_assets" {
   }
 
   provisioner "local-exec" {
-    command = "yarn run build:server && s5cmd sync --size-only ${path.module}/../dist/client/ s3://${aws_s3_bucket.chatbot_assets.id}/" # echo ${self.private_ip} >> private_ips.txt"
+    command = "yarn run build:client && s5cmd sync --size-only ${path.module}/../dist/client/ s3://${aws_s3_bucket.chatbot_assets.id}/" # echo ${self.private_ip} >> private_ips.txt"
   }
 }
 

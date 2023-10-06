@@ -1,4 +1,4 @@
-import { PageContent, Chat }  from '#components/page'
+import { PageContent }  from '#components/page'
 
 export const Page = () => {
     return (
@@ -16,7 +16,7 @@ export const Page = () => {
 <li>Patents may sometimes cover too much or be granted too easily. In the early 1970s, Xerox had received over 1,700 patents on various elements of the photocopy machine. Every time Xerox improved the photocopier, it received a patent on the improvement.</li>
 <li>The 20-year time period for a patent is somewhat arbitrary. Ideally, a patent should cover a long enough period of time for the inventor to earn a good return, but not so long that it allows the inventor to charge a monopoly price permanently.</li>
 </ul>
-                <Chat subject="economics" topic="How Governments Can Encourage Innovation" />
+
 <p id="fs-idp48212800">Because patents are imperfect and do not apply well to all situations, alternative methods of improving the rate of return for inventors of new technology are desirable. The following sections describe some of these possible alternative policies.</p></section>
 
 

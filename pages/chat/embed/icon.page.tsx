@@ -1,14 +1,15 @@
-import { useEffect, PropsWithChildren, useState } from 'react'
+import { PropsWithChildren } from 'react'
 import 'iframe-resizer'
 import { LaunchIcon } from '#components/launch-icon'
 import { Global, css } from '@emotion/react'
 import { useEmbedCommunication } from './communication'
+import './styles.scss';
 
 export const Layout: React.FC<PropsWithChildren> = ({ children }) => {
     return <>{children}</>
 }
 
-
+export const withoutGTM = true
 
 export const Page = () => {
     const [api] = useEmbedCommunication()
@@ -16,7 +17,7 @@ export const Page = () => {
     const onClick = () => {
         console.log(api)
         api?.openNewFrame({
-            name: 'chat-window',
+            id: 'chatbot-window',
             srcURL: `${window.location.origin}/chat/embed/window`,
             embedLocation: 'body',
             isResizable: true,
@@ -29,9 +30,7 @@ export const Page = () => {
     return (
         <>
             <Global
-                styles={css({
-                    '#react-root': { width: 150, maxWidth: 150 },
-                })}
+                styles={css({ '#react-root': { width: 150, maxWidth: 150 } })}
             />
             <LaunchIcon onClick={onClick} isOpen={false} />
         </>
