@@ -1,6 +1,8 @@
 
 import { PageContent, Chat }  from '#components/page'
 
+export const withoutGTM = true
+
 export const Page = () => {
     return (
         <PageContent>

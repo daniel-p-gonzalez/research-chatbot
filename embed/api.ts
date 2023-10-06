@@ -9,17 +9,21 @@ export type Size = {
     height?: string
 }
 
+export type Position = {
+  position?: 'absolute' | 'relative'
+}
+
 // options used to implement a frame
 export type FrameOptions = {
+    id: string
     embedLocation: string
-    name: string
     srcURL: string
     fitContent?: boolean
     float?: 'right' | false // TODO: implement left
     isResizable?: boolean
     isDraggable?: boolean
     dragGrabArea?: Size
-    position?: Size
+    position?: Position & Size
 }
 
 

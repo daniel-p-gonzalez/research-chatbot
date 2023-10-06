@@ -8,6 +8,7 @@ export const Layout: React.FC<PropsWithChildren> = ({ children }) => {
     return <>{children}</>
 }
 
+export const withoutGTM = true
 
 export const Page = () => {
     const [api, context] = useEmbedCommunication()

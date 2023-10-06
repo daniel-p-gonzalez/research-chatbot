@@ -3,28 +3,9 @@ import { connectToChild, AsyncMethodReturns } from 'penpal';
 
 import { ParentApi, ChildApi, FrameOptions, Size } from './api'
 
-// TODO: figure out how to provide these vars to the script,
-// maybe data attributes on the tag?
-const Config: FrameOptions = {
-    embedLocation: 'content-end',
-    name: 'icon-embed',
-    float: 'right',
-    srcURL: process.env.PUBLIC_ENV__CHAT_URL ||  'http://localhost:3000/chat/embed/icon',
-}
-
-
-function openNewFrame(opts: FrameOptions) {
-    const root = (opts.embedLocation == 'body') ? document.body  : document.querySelector<HTMLElement>(`[data-embed-location="${Config.embedLocation}"]`)
-    if (!root) return
-
-    new Embed(root, opts)
-}
-
 
 const apiMethods = (embed: Embed) => ({
-
     openNewFrame,
-
     onClose() {
         embed.destroy()
     },
@@ -33,9 +14,8 @@ const apiMethods = (embed: Embed) => ({
 
 type DragOffset = { x: number, y: number }
 
-
 function applyPositioning(el: HTMLElement, size: Size, defaults: Size = {}) {
-    for (const prop of ['left', 'right', 'top', 'bottom', 'width', 'height']) {
+    for (const prop of ['left', 'right', 'top', 'bottom', 'width', 'height'] as (keyof Size)[]) {
         const value = size[prop] || defaults[prop]
         if (value) {
             el.style[prop] = value
@@ -57,8 +37,8 @@ class DraggableResizer {
 
         const wrapper = document.createElement('div')
         this.container = wrapper
-
-
+      
+      
         const grabber = document.createElement('div')
         grabber.style.cursor = 'grab'
         grabber.style.display = 'flex'
@@ -177,7 +157,7 @@ class Embed {
         this.config = config
         this.iframe = wrapper as HTMLIFrameElement
 
-        wrapper.setAttribute('name', config.name)
+        wrapper.setAttribute('id', config.id)
         wrapper.setAttribute('src', config.srcURL)
         wrapper.style.border = '0px'
 
@@ -187,7 +167,7 @@ class Embed {
         if (config.fitContent !== false) {
             iframeResizer({ checkOrigin: false, sizeWidth: true, log: false }, wrapper)
             // set initial size small so the resizer will expand
-            wrapper.style.height = wrapper.style.width = '10px'
+            wrapper.style.width = '10px'
         }
 
         connectToChild<ChildApi>({
@@ -226,20 +206,33 @@ class Embed {
 
 }
 
+function openNewFrame(opts: FrameOptions) {
+    let root: any;
 
-// TODO: also handle history pop/push events
-function whenDomReady(fn: () => void): void {
-    if (document.readyState === 'complete' || document.readyState === 'interactive') {
-        setTimeout(fn, 1)
-
-    } else {
-        document.addEventListener('DOMContentLoaded', fn)
+    // check for pre-existing frame
+    if (document.querySelector(`iframe[id="${opts.id}"]`)) {
+        return
     }
+
+    if (opts.embedLocation) {
+        root = document.querySelector(opts.embedLocation)
+    } else {
+        const paras = document.querySelectorAll('p[id]')
+        root = paras[paras.length - 1]
+    }
+
+    if (!root) return
+
+    new Embed(root, opts)
 }
 
-whenDomReady(() => setTimeout(() => {
-    openNewFrame(Config)
-    window.addEventListener('popstate', function (event) {
-        console.log('Location changed!', event.state);
-    });
-}, 200))
+openNewFrame({
+    id: 'chatbot-icon-embed',
+    embedLocation: 'body',
+    srcURL: process.env.PUBLIC_ENV__CHAT_URL ||  'http://localhost:3000/chat/embed/icon',
+    position: {
+        position: 'absolute',
+        right: '30px',
+        bottom: '30px',
+    },
+});

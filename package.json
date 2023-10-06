@@ -1,11 +1,11 @@
 {
   "license": "AGPL-3.0",
   "scripts": {
-    "start": "npm run server",
+    "start": "run-p server:embed server:express",
     "start:local": "./bin/local-dynamodb && npm run server",
     "prod": "npm run lint && npm run build && npm run server:prod",
-    "server": "tsx ./server/express.ts",
     "evaluatron": "tsx ./bin/evaluatron.ts",
+    "server:express": "tsx ./server/express.ts",
     "server:embed": "PUBLIC_ENV__CHAT_URL=http://localhost:3000/chat/embed/icon parcel --port 8233 --no-hmr embed/chatbot-embed.ts",
     "server:prod": "cross-env NODE_ENV=production ts-node ./server/index.ts",
     "lint": "eslint",
