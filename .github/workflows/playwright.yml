@@ -18,11 +18,13 @@ jobs:
     - name: Install dependencies
       run: yarn
     - name: Start docker containers
-      run: docker compose build && docker compose up
+      run: docker compose build && docker compose up -d
     - name: Install Playwright Browsers
       run: npx playwright install --with-deps
     - name: Run Playwright tests
       run: npx playwright test
+      with:
+        wait-on: "http://localhost:3000"
     - uses: actions/upload-artifact@v3
       if: failure()
       with:

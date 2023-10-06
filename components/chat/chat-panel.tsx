@@ -18,14 +18,14 @@ import {
     Anchor,
     Button,
     Center,
-    CloseButton,
+    CloseButton, Container,
     Drawer,
     Flex,
     Group,
     Image,
     Select,
     Stack,
-    Text,
+    Text, Textarea, Title,
     Tooltip
 } from '@mantine/core';
 import { useLocalstorageState } from '@nathanstitt/sundry/base';
@@ -103,12 +103,24 @@ const LeaveFeedback = () => {
                             </Button>
                         </Drawer.Title>
                     </Drawer.Header>
-                        <Stack>
-                            <Image src={Staxly} height={40} width={40} mt={10} alt='Staxly Logo' />
-                        </Stack>
+
                     {/*<Drawer.Body p={0} h='100%' style={{ overflow: 'hidden' }}>*/}
                     <Drawer.Body>
+                        <Stack gap='lg'>
+                            <Stack align='center'>
+                                <Image src={Staxly} h={50} w={50} alt='Staxly Logo' />
+                                <Title order={5}>Share your feedback with us</Title>
+                            </Stack>
 
+                            <Stack>
+                                <Textarea name='feedback' minRows={12}>
+
+                                </Textarea>
+                                <Button color='orange'>
+                                    Submit & Continue chat
+                                </Button>
+                            </Stack>
+                        </Stack>
                     </Drawer.Body>
                 </Drawer.Content>
             </Drawer.Root>
