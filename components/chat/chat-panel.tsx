@@ -87,7 +87,7 @@ const LeaveFeedback = () => {
     const [open, setOpen] = useState(false);
     return (
         <>
-            <Drawer.Root size='lg' portalProps={{ target: '.react-draggable' }} position='bottom' opened={open} onClose={() => setOpen(false)}>
+            <Drawer.Root size='sm' portalProps={{ target: '.react-draggable' }} position='bottom' opened={open} onClose={() => setOpen(false)}>
                 <Drawer.Overlay />
                 <Drawer.Content style={{ overflow: 'hidden' }}>
                     <Drawer.Header bg='#FFF' style={{ padding: 0, justifyContent: 'flex-end' }}>
@@ -113,7 +113,7 @@ const LeaveFeedback = () => {
                             </Stack>
 
                             <Stack>
-                                <Textarea name='feedback' minRows={12}>
+                                <Textarea name='feedback' maxRows={12} minRows={12}>
 
                                 </Textarea>
                                 <Button color='orange'>
